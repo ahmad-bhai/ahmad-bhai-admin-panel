@@ -4,24 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADMIN PANEL | AHMAD BHAI</title>
-    <link rel="icon" href="https://i.ibb.co/Z69FyZ04/20251103-091451.png" type="image/png" />
+    <link rel="icon" href="logo.png" type="image/png" />
     <style>
         :root { --accent: #22c55e; --blue: #2563eb; --red: #ef4444; }
         body { background: #020617; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 20px; }
-        .box { background: #0f172a; padding: 30px; border-radius: 20px; width: 480px; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; }
-        input { width: 100%; padding: 12px; margin: 6px 0; border-radius: 10px; border: 1px solid #334155; background: #020617; color: var(--accent); box-sizing: border-box; outline: none; transition: 0.3s; }
-        .btn { background: var(--blue); color: white; border: none; width: 100%; padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         
-        /* Error Styling */
-        .error-border { border: 1px solid var(--red) !important; }
-        #errorMsg { color: var(--red); font-size: 12px; margin-top: 5px; display: none; font-weight: bold; }
+        .box { background: #0f172a; padding: 30px; border-radius: 25px; width: 450px; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+        
+        /* Logo Zoom Animation */
+        @keyframes zoomInOut {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
 
-        .logout-btn { position: absolute; top: 15px; right: 15px; background: var(--red); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: bold; z-index: 10; }
+        .logo-img { 
+            width: 80px; height: 80px; border-radius: 50%; 
+            animation: zoomInOut 4s ease-in-out infinite;
+            border: 2px solid var(--blue);
+        }
+
+        /* Panel User Logo Animation */
+        .panel-logo {
+            width: 30px; height: 30px; border-radius: 50%;
+            animation: zoomInOut 3s ease-in-out infinite; /* Thoda fast animation panel ke liye */
+            border: 1px solid var(--blue);
+        }
+
+        input { width: 100%; padding: 12px; margin: 6px 0; border-radius: 10px; border: 1px solid #334155; background: #020617; color: var(--accent); box-sizing: border-box; outline: none; }
+        
+        .btn { 
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            color: white; border: none; width: 100%; padding: 14px; 
+            border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px; 
+            transition: 0.3s;
+        }
+        .btn-blue { background: var(--blue); }
+        .btn-icon { width: 20px; height: 20px; object-fit: contain; }
+
+        .logout-btn { 
+            position: absolute; top: 15px; right: 15px; background: var(--red); 
+            color: white; border: none; padding: 8px 15px; border-radius: 8px; 
+            cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 5px;
+        }
+
         .search-container { position: relative; margin-top: 20px; }
         .search-container input { padding-left: 45px; border-color: var(--blue); }
         .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; }
+
         .user-card { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--blue); }
-        .del-btn { background: var(--red); border: none; color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; }
+        
+        .del-btn { 
+            background: var(--red); border: none; color: white; padding: 8px 12px; 
+            border-radius: 8px; cursor: pointer; font-size: 11px; 
+            display: flex; align-items: center; gap: 6px; font-weight: bold;
+        }
+        .del-icon { width: 14px; height: 14px; }
+        
+        #errorMsg { color: var(--red); font-size: 12px; margin-top: 5px; display: none; font-weight: bold; }
+        .error-border { border: 1px solid var(--red) !important; }
+
         #toast { visibility: hidden; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--accent); color: black; padding: 12px 25px; border-radius: 50px; font-weight: bold; z-index: 1000; }
         #toast.show { visibility: visible; animation: pop 0.3s ease; }
         @keyframes pop { from {bottom: 0; opacity:0;} to {bottom: 30px; opacity:1;} }
@@ -32,33 +73,38 @@
 
 <div id="toast">Done!</div>
 
-<div id="loginBox" class="box hidden" style="text-align:center; margin-top:50px;">
-    <img src="https://i.ibb.co/Z69FyZ04/20251103-091451.png" width="70" style="border-radius:50%;">
-    <h2>Admin Login</h2>
+<div id="loginBox" class="box hidden" style="margin-top:50px; text-align: center;">
+    <div class="logo-container">
+        <img src="logo.png" class="logo-img">
+    </div>
+    <h2>Login</h2>
     <input type="password" id="pass" placeholder="Enter Password" oninput="resetError()">
     <div id="errorMsg">Please enter a password !</div>
-    <button class="btn" onclick="login()">Access Panel</button>
+    <button class="btn btn-blue" onclick="login()">
+        <img src="login.png" class="btn-icon"> Login
+    </button>
 </div>
 
 <div id="panelBox" class="box hidden">
-    <button class="logout-btn" onclick="logout()">LOGOUT</button>
-    <h3 style="margin-top:0; color:var(--blue); border-bottom: 1px solid #334155; padding-bottom:10px;">User Manager</h3>
+    <button class="logout-btn" onclick="logout()">
+        <img src="logout.png" style="width:14px; height:14px;"> LOGOUT
+    </button>
+    
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px;">
+        <img src="logo.png" class="panel-logo">
+        <h3 style="margin:0; color:var(--blue);">User Manager</h3>
+    </div>
     
     <input type="text" id="n" placeholder="User Name">
     <input type="text" id="i" placeholder="20-Digit Device ID">
+    <input type="date" id="d">
     
-    <div style="display:flex; gap:5px;">
-        <input type="text" id="e" placeholder="Email (Optional)">
-        <input type="text" id="id8" placeholder="8-Digit ID">
-    </div>
-    <div style="display:flex; gap:5px;">
-        <input type="text" id="l" placeholder="Leaderboard">
-        <input type="date" id="d">
-    </div>
-    <button class="btn" style="background:var(--accent); color:black;" onclick="add()">APPROVE USER</button>
+    <button class="btn btn-blue" onclick="add()">
+        <img src="upgrade.png" class="btn-icon"> UPGRADE
+    </button>
 
     <div class="search-container">
-        <img src="https://i.ibb.co/39yK2xR4/20251013-205834.png" class="search-icon">
+        <img src="search.png" class="search-icon">
         <input type="text" id="s" placeholder="Search User by Name or ID..." onkeyup="search()">
     </div>
     
@@ -91,20 +137,16 @@
     function login() {
         let p = document.getElementById('pass');
         let e = document.getElementById('errorMsg');
-
         if(p.value.trim() === "") {
             p.classList.add('error-border');
             e.style.display = 'block';
             return;
         }
-
         if(p.value === "181314") {
             localStorage.setItem('admin_session', 'true');
             showPanel();
-            showToast("Login Successful!");
-        } else { 
-            showToast("Wrong Password!"); 
-        }
+            showToast("Welcome Ahmad Bhai!");
+        } else { showToast("Wrong Password!"); }
     }
 
     function resetError() {
@@ -127,7 +169,6 @@
     function showLogin() {
         document.getElementById('panelBox').classList.add('hidden');
         document.getElementById('loginBox').classList.remove('hidden');
-        resetError();
         document.getElementById('pass').value = "";
     }
 
@@ -135,15 +176,12 @@
         let u = { 
             name: document.getElementById('n').value, 
             id: document.getElementById('i').value.trim(), 
-            email: document.getElementById('e').value, 
-            id8: document.getElementById('id8').value, 
-            leader: document.getElementById('l').value, 
             date: document.getElementById('d').value 
         };
         if(u.name && u.id) {
             db.ref('users').push(u).then(() => {
-                showToast("User Activated!");
-                ["n","i","e","id8","l","d"].forEach(id => document.getElementById(id).value = "");
+                showToast("User Upgraded!");
+                ["n","i","d"].forEach(id => document.getElementById(id).value = "");
             });
         }
     }
@@ -153,12 +191,15 @@
             let h = "";
             s.forEach(c => {
                 let v = c.val();
+                let exp = v.date ? `<br><small style="color:var(--blue)">Expiry: ${v.date}</small>` : "";
                 h += `<div class="user-card" data-s="${v.name.toLowerCase()} ${v.id}">
                     <span>
                         <b>${v.name}</b><br>
-                        <small style="color:gray">${v.id}</small>
+                        <small style="color:gray">${v.id}</small>${exp}
                     </span>
-                    <button class="del-btn" onclick="del('${c.key}')">Delete</button>
+                    <button class="del-btn" onclick="del('${c.key}')">
+                        <img src="delete.png" class="del-icon"> Delete
+                    </button>
                 </div>`;
             });
             document.getElementById('list').innerHTML = h || "<p style='text-align:center; opacity:0.5'>No Users</p>";
