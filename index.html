@@ -5,60 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADMIN PANEL | AHMAD BHAI</title>
     <link rel="icon" href="logo.png" type="image/png" />
+
     <style>
         :root { 
-            --accent: #22c55e; --blue: #2563eb; --red: #ef4444; 
-            --bg: #020617; --card: #0f172a; --text: #ffffff; --border: #1e293b; --input-bg: #020617;
+            --accent:#22c55e; --blue:#2563eb; --red:#ef4444; 
+            --bg:#020617; --card:#0f172a; --text:#ffffff; --border:#1e293b; --input-bg:#020617;
         }
-
         body.light-mode { 
-            --bg: #f1f5f9; --card: #ffffff; --text: #000000; --border: #cbd5e1; --input-bg: #f8fafc;
+            --bg:#f1f5f9; --card:#ffffff; --text:#000000; --border:#cbd5e1; --input-bg:#f8fafc;
         }
-
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 20px; transition: 0.3s; }
+        body { background:var(--bg); color:var(--text); font-family:'Segoe UI',sans-serif; display:flex; justify-content:center; padding:20px; transition:0.3s;}
         
-        .box { background: var(--card); padding: 30px; border-radius: 30px; width: 450px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; }
-
-        .header-section { position: relative; text-align: center; margin-bottom: 25px; padding-top: 10px; }
+        .box { background:var(--card); padding:30px; border-radius:30px; width:450px; border:1px solid var(--border); box-shadow:0 20px 40px rgba(0,0,0,0.2); position:relative;}
         
-        .logo-img { 
-            width: 100px; height: 100px; border-radius: 50%; 
-            animation: zoomInOut 4s infinite; border: 3px solid var(--blue);
-        }
-
-        @keyframes zoomInOut { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-
-        .theme-toggle { position: absolute; top: 0; right: 0; cursor: pointer; width: 30px; height: 30px; transition: 0.3s; }
-
-        .title-bar { 
-            display: flex; align-items: center; justify-content: center; gap: 10px; 
-            margin-top: 15px; border-bottom: 2px solid var(--border); padding-bottom: 10px;
-        }
-
-        input { width: 100%; padding: 14px; margin: 8px 0; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); box-sizing: border-box; outline: none; font-weight: 500; }
+        .header-section { position:relative; text-align:center; margin-bottom:25px; padding-top:10px;}
+        .logo-img { width:100px; height:100px; border-radius:50%; animation:zoomInOut 4s infinite; border:3px solid var(--blue);}
+        @keyframes zoomInOut {0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
         
-        .btn { display: flex; align-items: center; justify-content: center; gap: 10px; color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: bold; margin-top: 12px; transition: 0.3s; }
-        .btn-blue { background: var(--blue); }
+        .theme-toggle { position:absolute; top:0; right:0; cursor:pointer; width:30px; height:30px; transition: 0.3s;}
+        
+        input { width:100%; padding:14px; margin:8px 0; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--accent); font-weight: bold; outline: none; box-sizing: border-box;}
+        input::placeholder { color: #555; font-weight: normal; }
+
+        .btn { display: flex; align-items: center; justify-content: center; gap: 10px; background:var(--blue); color:white; border:none; width:100%; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold; margin-top:12px; transition: 0.3s;}
         .btn-icon { width: 20px; height: 20px; }
 
-        .logout-btn { position: absolute; top: 15px; left: 15px; background: var(--red); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
-
-        .search-container { position: relative; margin-top: 20px; }
+        .logout-btn { position:absolute; top:15px; left:15px; background:var(--red); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:bold; display: flex; align-items: center; gap: 5px; z-index: 10;}
+        
+        .search-container { position: relative; margin-top:20px;}
         .search-container input { padding-left: 45px; border-color: var(--blue); }
-        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; }
+        .search-main-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; }
 
-        .user-card { background: rgba(120,120,120,0.1); padding: 15px; border-radius: 15px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--blue); }
+        .user-card { background:rgba(120,120,120,0.1); padding:15px; border-radius:15px; margin-top:12px; display:flex; justify-content:space-between; align-items:center; border-left:5px solid var(--blue);}
+        .del-btn { background:var(--red); border:none; color:white; padding:8px 12px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:bold; display: flex; align-items: center; gap: 5px;}
+
+        /* Toast with Icon Styling */
+        #toast { 
+            visibility:hidden; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); 
+            background:var(--blue); color:white; padding:12px 25px; border-radius:50px; 
+            font-weight:bold; z-index:100; display: flex; align-items: center; gap: 10px;
+        }
+        #toast img { width: 20px; height: 20px; }
+        #toast.show { visibility:visible; animation: pop 0.3s ease; }
+        @keyframes pop { from {bottom: 0; opacity:0;} to {bottom: 30px; opacity:1;} }
         
-        .del-btn { background: var(--red); border: none; color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; display: flex; align-items: center; gap: 6px; font-weight: bold; }
-        
-        #toast { visibility: hidden; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; padding: 12px 25px; border-radius: 50px; font-weight: bold; z-index: 100; }
-        #toast.show { visibility: visible; animation: pop 0.3s ease; }
-        .hidden { display: none !important; }
+        .hidden { display:none !important; }
     </style>
 </head>
 <body>
 
-<div id="toast">Done!</div>
+<div id="toast">
+    <span id="toastText">Done!</span>
+    <img src="remove.png" id="toastIcon" style="display:none;">
+</div>
 
 <div id="loginBox" class="box hidden">
     <div class="header-section">
@@ -67,7 +66,7 @@
     </div>
     <h2 style="text-align:center; margin:0;">Admin Login</h2>
     <input type="password" id="pass" placeholder="Enter Password">
-    <button class="btn btn-blue" onclick="login()">
+    <button class="btn" onclick="login()">
         <img src="login.png" class="btn-icon"> Login
     </button>
 </div>
@@ -80,112 +79,129 @@
     <div class="header-section">
         <img src="sun.png" id="themeIconPanel" class="theme-toggle" onclick="toggleTheme()">
         <img src="logo.png" class="logo-img">
-        <div class="title-bar">
-            <h3 style="margin:0; color:var(--blue);">AHMAD BHAI</h3>
-        </div>
+        <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Ahmad Bhai</h3>
     </div>
-    
+
     <input type="text" id="n" placeholder="User Name">
     <input type="text" id="i" placeholder="20-Digit Device ID">
-    
-    <button class="btn btn-blue" onclick="add()">
+    <button class="btn" onclick="add()">
         <img src="upgrade.png" class="btn-icon"> UPGRADE
     </button>
 
     <div class="search-container">
-        <img src="search.png" class="search-icon">
+        <img src="search.png" class="search-main-icon">
         <input type="text" id="s" placeholder="Search Users..." onkeyup="search()">
     </div>
     
-    <div id="list" style="max-height: 300px; overflow-y: auto; margin-top: 10px;"></div>
+    <div id="list" style="max-height:300px; overflow-y:auto; margin-top:10px;"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
 <script>
-    const firebaseConfig = { 
-        apiKey: "AIzaSyDS3Vc-QJScL5UnpHAd3ZV-Sk-57plSjKI", 
-        authDomain: "reactions-maker-site.firebaseapp.com", 
-        projectId: "reactions-maker-site", 
-        databaseURL: "https://reactions-maker-site-default-rtdb.firebaseio.com" 
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+const firebaseConfig = { 
+    apiKey:"AIzaSyDS3Vc-QJScL5UnpHAd3ZV-Sk-57plSjKI",
+    authDomain:"reactions-maker-site.firebaseapp.com",
+    projectId:"reactions-maker-site",
+    databaseURL:"https://reactions-maker-site-default-rtdb.firebaseio.com"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
 
-    function applyTheme(theme) {
-        const body = document.body;
-        const themeIcon = (theme === 'light') ? 'moon.png' : 'sun.png';
-        if(theme === 'light') body.classList.add('light-mode');
-        else body.classList.remove('light-mode');
-        document.getElementById('themeIconLogin').src = themeIcon;
-        document.getElementById('themeIconPanel').src = themeIcon;
+function applyTheme(theme) {
+    const themeIcon = (theme === 'light') ? 'moon.png' : 'sun.png';
+    if(theme === 'light') document.body.classList.add('light-mode');
+    else document.body.classList.remove('light-mode');
+    document.getElementById('themeIconLogin').src = themeIcon;
+    document.getElementById('themeIconPanel').src = themeIcon;
+}
+
+function toggleTheme() {
+    let current = localStorage.getItem('theme') || 'dark';
+    let newTheme = (current === 'dark') ? 'light' : 'dark';
+    localStorage.setItem('theme', newTheme);
+    applyTheme(newTheme);
+}
+
+// Updated Toast Function with Icon support
+function showToast(m, showIcon = false){
+    let t = document.getElementById('toast');
+    let txt = document.getElementById('toastText');
+    let icon = document.getElementById('toastIcon');
+    
+    txt.innerText = m;
+    icon.style.display = showIcon ? "block" : "none";
+    
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function login(){
+    let email="nasiriq703@gmail.com"; 
+    let pass=document.getElementById('pass').value;
+    if(!pass) return showToast("Please enter a password!");
+    auth.signInWithEmailAndPassword(email,pass).catch(()=>showToast("Access Denied!"));
+}
+
+function logout(){
+    auth.signOut().then(() => showToast("Logged Out"));
+}
+
+auth.onAuthStateChanged(user=>{
+    if(user){
+        document.getElementById('loginBox').classList.add('hidden');
+        document.getElementById('panelBox').classList.remove('hidden');
+        loadData();
+    } else {
+        document.getElementById('panelBox').classList.add('hidden');
+        document.getElementById('loginBox').classList.remove('hidden');
+        document.getElementById('pass').value = "";
     }
+});
 
-    function toggleTheme() {
-        let current = localStorage.getItem('theme') || 'dark';
-        let newTheme = (current === 'dark') ? 'light' : 'dark';
-        localStorage.setItem('theme', newTheme);
-        applyTheme(newTheme);
-    }
-
-    window.onload = function() {
-        applyTheme(localStorage.getItem('theme') || 'dark');
-        if(localStorage.getItem('admin_session') === 'true') showPanel(); else showLogin();
-    };
-
-    function showToast(m) { 
-        let t=document.getElementById('toast'); 
-        t.innerText=m; t.classList.add('show'); 
-        setTimeout(()=>t.classList.remove('show'), 2000); 
-    }
-
-    function login() {
-        if(document.getElementById('pass').value === "181314") {
-            localStorage.setItem('admin_session', 'true');
-            showPanel();
-            showToast("Welcome Ahmad Bhai");
-        } else showToast("Access Denied!");
-    }
-
-    function logout() { localStorage.removeItem('admin_session'); showLogin(); }
-    function showPanel() { document.getElementById('loginBox').classList.add('hidden'); document.getElementById('panelBox').classList.remove('hidden'); loadData(); }
-    function showLogin() { document.getElementById('panelBox').classList.add('hidden'); document.getElementById('loginBox').classList.remove('hidden'); }
-
-    function add() {
-        let u = { name: document.getElementById('n').value, id: document.getElementById('i').value.trim() };
-        if(u.name && u.id) {
-            db.ref('users').push(u).then(() => {
-                showToast("User Upgraded!");
-                document.getElementById('n').value = "";
-                document.getElementById('i').value = "";
-            });
-        }
-    }
-
-    function loadData() {
-        db.ref('users').on('value', s => {
-            let h = "";
-            s.forEach(c => {
-                let v = c.val();
-                h += `<div class="user-card">
-                    <span><b>${v.name}</b><br><small style="opacity:0.7">${v.id}</small></span>
-                    <button class="del-btn" onclick="del('${c.key}')">
-                        <img src="delete.png" style="width:14px;"> Delete
-                    </button>
-                </div>`;
-            });
-            document.getElementById('list').innerHTML = h || "<p style='text-align:center; opacity:0.5'>Empty List</p>";
+function add(){
+    let u={name:document.getElementById('n').value, id:document.getElementById('i').value.trim()};
+    if(u.name && u.id){
+        db.ref('users').push(u).then(()=>{
+            showToast("User Upgraded!");
+            document.getElementById('n').value=""; 
+            document.getElementById('i').value="";
         });
     }
+}
 
-    function search() {
-        let v = document.getElementById('s').value.toLowerCase();
-        document.querySelectorAll('.user-card').forEach(u => {
-            u.style.display = u.innerText.toLowerCase().includes(v) ? "flex" : "none";
+function loadData(){
+    db.ref('users').on('value',s=>{
+        let h="";
+        s.forEach(c=>{
+            let v=c.val();
+            h+=`<div class="user-card">
+                <span><b>${v.name}</b><br><small style="opacity:0.7;">${v.id}</small></span>
+                <button class="del-btn" onclick="del('${c.key}', '${v.name}')">
+                    <img src="delete.png" style="width:12px;"> Delete
+                </button>
+            </div>`;
         });
-    }
+        document.getElementById('list').innerHTML = h || "<p style='text-align:center;opacity:0.5'>Empty List</p>";
+    });
+}
 
-    function del(k) { db.ref('users').child(k).remove().then(() => showToast("Removed")); }
+function search(){
+    let v=document.getElementById('s').value.toLowerCase();
+    document.querySelectorAll('.user-card').forEach(u=>u.style.display=u.innerText.toLowerCase().includes(v)?"flex":"none");
+}
+
+// Updated Delete Function to show Name + Icon
+function del(k, name){
+    db.ref('users').child(k).remove().then(() => {
+        showToast(name + " removed!", true);
+    });
+}
+
+window.onload = () => { applyTheme(localStorage.getItem('theme') || 'dark'); };
 </script>
 </body>
 </html>
