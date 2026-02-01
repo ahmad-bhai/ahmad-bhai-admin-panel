@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REACTIONS BOT MAKER</title>
+    <link rel="icon" href="https://i.ibb.co/Z69FyZ04/20251103-091451.png" type="image/png" />
+    <style>
+        :root { --primary: #3b82f6; --success: #22c55e; --danger: #ef4444; --bg-overlay: rgba(15, 23, 42, 0.9); }
+        body { 
+            background: url('https://i.ibb.co/yF1YLfxB/IMG-20251026-111102-111.jpg') no-repeat center center fixed; 
+            background-size: cover; color: white; font-family: 'Segoe UI', sans-serif; 
+            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; backdrop-filter: blur(10px); 
+        }
+        .card { 
+            background: var(--bg-overlay); padding: 35px; border-radius: 25px; width: 340px; 
+            text-align: center; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
+        }
+        .logo { width: 80px; border-radius: 50%; margin-bottom: 15px; border: 2px solid var(--primary); }
+        input { 
+            width: 100%; padding: 14px; margin: 15px 0; border-radius: 12px; 
+            border: 1px solid #334155; background: rgba(0,0,0,0.4); 
+            color: #4ade80; text-align: center; box-sizing: border-box; outline: none; 
+        }
+        .btn-run { 
+            background: linear-gradient(135deg, #3b82f6, #2563eb); 
+            color: white; border: none; width: 100%; padding: 15px; 
+            border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; 
+        }
+        .btn-run:active { transform: scale(0.96); }
+        
+        /* Toggle Switch */
+        .switch-container { margin: 20px 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .switch { position: relative; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #334155; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background: var(--success); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        /* Custom Toast Notification */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #1e293b; color: #fff;
+            text-align: center; border-radius: 50px; padding: 12px; position: fixed;
+            z-index: 1000; bottom: 30px; font-size: 14px; border: 1px solid var(--success);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        .lock-id { background: #1e293b; color: #f59e0b; padding: 12px; border-radius: 10px; font-family: monospace; margin: 15px 0; border: 1px solid #f59e0b; word-break: break-all; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="toast">Action Successful!</div>
+
+<div id="lockScreen" class="card hidden">
+    <h1 style="color:var(--danger); margin:0;">LOCKED</h1>
+    <div id="displayID" class="lock-id"></div>
+    <p style="font-size:12px;">Contact Admin to unlock:<br><b>@AHMADTRADER3</b></p>
+</div>
+
+<div id="mainApp" class="card hidden">
+    <img src="https://i.ibb.co/Z69FyZ04/20251103-091451.png" class="logo">
+    <h2 style="margin:0;">REACTIONS BOT</h2>
+    <input type="text" id="botToken" placeholder="Enter Bot API Token">
+    <div class="switch-container">
+        <span style="font-size:12px; opacity:0.6;">OFF</span>
+        <label class="switch"><input type="checkbox" id="botToggle"><span class="slider"></span></label>
+        <span style="font-size:12px;">ON</span>
+    </div>
+    <button class="btn-run" onclick="executeBot()">START BOT</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+    const firebaseConfig = { 
+        apiKey: "AIzaSyDS3Vc-QJScL5UnpHAd3ZV-Sk-57plSjKI", 
+        authDomain: "reactions-maker-site.firebaseapp.com", 
+        projectId: "reactions-maker-site", 
+        databaseURL: "https://reactions-maker-site-default-rtdb.firebaseio.com" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // ID Persistence
+    let myID = localStorage.getItem('ahmad_bot_uid') || Array.from({length:20}, () => Math.floor(Math.random()*10)).join('');
+    localStorage.setItem('ahmad_bot_uid', myID);
+    document.getElementById('displayID').innerText = myID;
+
+    // Toggle Persistence (Default ON)
+    const botToggle = document.getElementById('botToggle');
+    const savedToggle = localStorage.getItem('ahmad_toggle_pos');
+    botToggle.checked = (savedToggle === null) ? true : (savedToggle === 'true');
+    botToggle.addEventListener('change', () => localStorage.setItem('ahmad_toggle_pos', botToggle.checked));
+
+    // Toast Function
+    function showToast(msg, color = "#22c55e") {
+        const t = document.getElementById("toast");
+        t.innerText = msg;
+        t.style.borderColor = color;
+        t.className = "show";
+        setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
+    }
+
+    // Auth Check
+    db.ref('users').on('value', (snapshot) => {
+        let auth = false;
+        snapshot.forEach((c) => { if(c.val().id === myID) auth = true; });
+        document.getElementById('mainApp').classList.toggle('hidden', !auth);
+        document.getElementById('lockScreen').classList.toggle('hidden', auth);
+    });
+
+    function executeBot() {
+        const token = document.getElementById('botToken').value.trim();
+        const mode = botToggle.checked ? 'on' : 'off';
+        if(token.length < 10) {
+            showToast("Invalid Bot Token!", "#ef4444");
+            return;
+        }
+        fetch(`https://reaction.cmybot.workers.dev/?${mode}=${token}`, { mode: 'no-cors' });
+        showToast("Bot Operation Started!");
+    }
+</script>
+</body>
+</html>
