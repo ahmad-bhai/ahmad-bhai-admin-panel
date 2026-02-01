@@ -22,13 +22,18 @@
         .logo-img { width:100px; height:100px; border-radius:50%; animation:zoomInOut 4s infinite; border:3px solid var(--blue);}
         @keyframes zoomInOut {0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
         
-        .theme-toggle { position:absolute; top:0; right:0; cursor:pointer; width:30px; height:30px; transition: 0.3s;}
+        .theme-toggle { position:absolute; top:0; right:0; cursor:pointer; width:30px; height:30px; transition: 0.3s; z-index: 15;}
         
-        input { width:100%; padding:14px; margin:8px 0; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--accent); font-weight: bold; outline: none; box-sizing: border-box;}
+        /* Input & Error Styling */
+        .input-group { margin: 8px 0; position: relative; }
+        input { width:100%; padding:14px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--accent); font-weight: bold; outline: none; box-sizing: border-box; transition: 0.3s;}
         input::placeholder { color: #555; font-weight: normal; }
+        
+        /* Error State */
+        input.error-border { border-color: var(--red) !important; }
+        .error-msg { color: var(--red); font-size: 12px; margin-top: 4px; display: none; font-weight: 500; }
 
-        .btn { display: flex; align-items: center; justify-content: center; gap: 10px; background:var(--blue); color:white; border:none; width:100%; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold; margin-top:12px; transition: 0.3s;}
-        .btn-icon { width: 20px; height: 20px; }
+        .btn { display: flex; align-items: center; justify-content: center; gap: 10px; background:var(--blue); color:white; border:none; width:100%; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold; margin-top:12px;}
 
         .logout-btn { position:absolute; top:15px; left:15px; background:var(--red); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:bold; display: flex; align-items: center; gap: 5px; z-index: 10;}
         
@@ -39,13 +44,11 @@
         .user-card { background:rgba(120,120,120,0.1); padding:15px; border-radius:15px; margin-top:12px; display:flex; justify-content:space-between; align-items:center; border-left:5px solid var(--blue);}
         .del-btn { background:var(--red); border:none; color:white; padding:8px 12px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:bold; display: flex; align-items: center; gap: 5px;}
 
-        /* Toast with Icon Styling */
         #toast { 
             visibility:hidden; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); 
             background:var(--blue); color:white; padding:12px 25px; border-radius:50px; 
             font-weight:bold; z-index:100; display: flex; align-items: center; gap: 10px;
         }
-        #toast img { width: 20px; height: 20px; }
         #toast.show { visibility:visible; animation: pop 0.3s ease; }
         @keyframes pop { from {bottom: 0; opacity:0;} to {bottom: 30px; opacity:1;} }
         
@@ -56,7 +59,7 @@
 
 <div id="toast">
     <span id="toastText">Done!</span>
-    <img src="remove.png" id="toastIcon" style="display:none;">
+    <img src="remove.png" id="toastIcon" style="display:none; width:20px;">
 </div>
 
 <div id="loginBox" class="box hidden">
@@ -64,10 +67,15 @@
         <img src="sun.png" id="themeIconLogin" class="theme-toggle" onclick="toggleTheme()">
         <img src="logo.png" class="logo-img">
     </div>
-    <h2 style="text-align:center; margin:0;">Admin Login</h2>
-    <input type="password" id="pass" placeholder="Enter Password">
+    <h2 style="text-align:center; margin:0; margin-bottom: 10px;">Admin Login</h2>
+    
+    <div class="input-group">
+        <input type="password" id="pass" placeholder="Enter Password" oninput="resetError()">
+        <div id="loginError" class="error-msg">Please enter a password!</div>
+    </div>
+
     <button class="btn" onclick="login()">
-        <img src="login.png" class="btn-icon"> Login
+        <img src="login.png" style="width:20px;"> Login
     </button>
 </div>
 
@@ -85,7 +93,7 @@
     <input type="text" id="n" placeholder="User Name">
     <input type="text" id="i" placeholder="20-Digit Device ID">
     <button class="btn" onclick="add()">
-        <img src="upgrade.png" class="btn-icon"> UPGRADE
+        <img src="upgrade.png" style="width:20px;"> UPGRADE
     </button>
 
     <div class="search-container">
@@ -126,24 +134,37 @@ function toggleTheme() {
     applyTheme(newTheme);
 }
 
-// Updated Toast Function with Icon support
 function showToast(m, showIcon = false){
     let t = document.getElementById('toast');
-    let txt = document.getElementById('toastText');
-    let icon = document.getElementById('toastIcon');
-    
-    txt.innerText = m;
-    icon.style.display = showIcon ? "block" : "none";
-    
+    document.getElementById('toastText').innerText = m;
+    document.getElementById('toastIcon').style.display = showIcon ? "block" : "none";
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2000);
 }
 
+// Login Logic with Red Border & Text Error
 function login(){
     let email="nasiriq703@gmail.com"; 
-    let pass=document.getElementById('pass').value;
-    if(!pass) return showToast("Please enter a password!");
-    auth.signInWithEmailAndPassword(email,pass).catch(()=>showToast("Access Denied!"));
+    let passInput = document.getElementById('pass');
+    let errorMsg = document.getElementById('loginError');
+    let passValue = passInput.value;
+
+    if(!passValue) {
+        passInput.classList.add('error-border');
+        errorMsg.style.display = "block";
+        return;
+    }
+
+    auth.signInWithEmailAndPassword(email, passValue).catch(() => {
+        showToast("Wrong Password");
+    });
+}
+
+function resetError() {
+    let passInput = document.getElementById('pass');
+    let errorMsg = document.getElementById('loginError');
+    passInput.classList.remove('error-border');
+    errorMsg.style.display = "none";
 }
 
 function logout(){
@@ -158,18 +179,28 @@ auth.onAuthStateChanged(user=>{
     } else {
         document.getElementById('panelBox').classList.add('hidden');
         document.getElementById('loginBox').classList.remove('hidden');
-        document.getElementById('pass').value = "";
+        resetError();
     }
 });
 
 function add(){
-    let u={name:document.getElementById('n').value, id:document.getElementById('i').value.trim()};
-    if(u.name && u.id){
-        db.ref('users').push(u).then(()=>{
-            showToast("User Upgraded!");
-            document.getElementById('n').value=""; 
-            document.getElementById('i').value="";
+    let nInput = document.getElementById('n');
+    let iInput = document.getElementById('i');
+    let nameVal = nInput.value;
+    let idVal = iInput.value.replace(/\s/g, ''); 
+
+    if(nameVal && idVal){
+        db.ref('users').push({
+            name: nameVal, 
+            id: idVal,
+            date: new Date().toLocaleDateString(),
+            status: "active"
+        }).then(()=>{
+            showToast("User Added!");
+            nInput.value=""; iInput.value="";
         });
+    } else {
+        showToast("Details bharein!");
     }
 }
 
@@ -194,11 +225,8 @@ function search(){
     document.querySelectorAll('.user-card').forEach(u=>u.style.display=u.innerText.toLowerCase().includes(v)?"flex":"none");
 }
 
-// Updated Delete Function to show Name + Icon
 function del(k, name){
-    db.ref('users').child(k).remove().then(() => {
-        showToast(name + " removed!", true);
-    });
+    db.ref('users').child(k).remove().then(()=>showToast(name + " removed!", true));
 }
 
 window.onload = () => { applyTheme(localStorage.getItem('theme') || 'dark'); };
