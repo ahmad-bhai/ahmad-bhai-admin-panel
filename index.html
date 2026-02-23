@@ -97,7 +97,7 @@
     </button>
 
     <div class="search-container">
-        <img src="search.png" class="search-main-icon">
+        <img src="search.png" id="searchIcon" class="search-main-icon">
         <input type="text" id="s" placeholder="Search Users..." onkeyup="search()">
     </div>
     
@@ -121,10 +121,19 @@ const auth = firebase.auth();
 
 function applyTheme(theme) {
     const themeIcon = (theme === 'light') ? 'moon.png' : 'sun.png';
-    if(theme === 'light') document.body.classList.add('light-mode');
-    else document.body.classList.remove('light-mode');
+    const searchIcon = (theme === 'light') ? 'search1.png' : 'search.png';
+
+    if(theme === 'light') {
+        document.body.classList.add('light-mode');
+    } else {
+        document.body.classList.remove('light-mode');
+    }
+
     document.getElementById('themeIconLogin').src = themeIcon;
     document.getElementById('themeIconPanel').src = themeIcon;
+
+    // 🔥 Search icon change according to theme
+    document.getElementById('searchIcon').src = searchIcon;
 }
 
 function toggleTheme() {
