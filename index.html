@@ -65,7 +65,7 @@
         <img src="sun.png" id="themeIconLogin" class="theme-toggle" onclick="toggleTheme()">
         <img src="logo.png" class="logo-img">
     </div>
-    <h2 style="text-align:center; margin:0; margin-bottom: 10px;">Admin Login</h2>
+    <h2 style="text-align:center; margin:0; margin-bottom: 10px;">Admin Panel Login</h2>
     
     <div class="input-group">
         <input type="password" id="pass" placeholder="Enter Password" oninput="resetError()">
@@ -85,13 +85,16 @@
     <div class="header-section">
         <img src="sun.png" id="themeIconPanel" class="theme-toggle" onclick="toggleTheme()">
         <img src="logo.png" class="logo-img">
-        <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Ahmad Bhai Panel</h3>
+        <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Ahmad Bhai Admin Panel</h3>
     </div>
 
     <input type="text" id="admin_n" placeholder="Admin Side User Name" style="border-color: var(--blue);">
     <input type="text" id="n" placeholder="User Name">
-    <input type="text" id="i" placeholder="20-Digit Device ID">
-    <input type="text" id="trader_id" placeholder="User Trader ID (Quotex)">
+    
+    <input type="text" id="i" placeholder="20-Digit Device ID" maxlength="20">
+    
+    <input type="text" id="trader_id" placeholder="User Trader ID (Quotex)" maxlength="8">
+    
     <input type="email" id="e" placeholder="User Email">
 
     <button class="btn" onclick="add()">
@@ -238,7 +241,6 @@ function search(){
 }
 
 function del(k, name){
-    // Alert hata diya hai, direct delete hoga
     db.ref('users').child(k).remove().then(()=>showToast(name + " removed!", true));
 }
 
