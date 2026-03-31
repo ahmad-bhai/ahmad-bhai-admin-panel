@@ -24,12 +24,10 @@
         
         .theme-toggle { position:absolute; top:0; right:0; cursor:pointer; width:30px; height:30px; transition: 0.3s; z-index: 15;}
         
-        /* Input & Error Styling */
         .input-group { margin: 8px 0; position: relative; }
-        input { width:100%; padding:14px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--accent); font-weight: bold; outline: none; box-sizing: border-box; transition: 0.3s;}
+        input { width:100%; padding:14px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--accent); font-weight: bold; outline: none; box-sizing: border-box; transition: 0.3s; margin-bottom: 10px;}
         input::placeholder { color: #555; font-weight: normal; }
         
-        /* Error State */
         input.error-border { border-color: var(--red) !important; }
         .error-msg { color: var(--red); font-size: 12px; margin-top: 4px; display: none; font-weight: 500; }
 
@@ -87,11 +85,14 @@
     <div class="header-section">
         <img src="sun.png" id="themeIconPanel" class="theme-toggle" onclick="toggleTheme()">
         <img src="logo.png" class="logo-img">
-        <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Ahmad Bhai</h3>
+        <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Ahmad Bhai Panel</h3>
     </div>
 
     <input type="text" id="n" placeholder="User Name">
     <input type="text" id="i" placeholder="20-Digit Device ID">
+    <input type="text" id="trader_id" placeholder="User Trader ID (Quotex)">
+    <input type="email" id="e" placeholder="User Email">
+
     <button class="btn" onclick="add()">
         <img src="upgrade.png" style="width:20px;"> UPGRADE
     </button>
@@ -122,17 +123,10 @@ const auth = firebase.auth();
 function applyTheme(theme) {
     const themeIcon = (theme === 'light') ? 'moon.png' : 'sun.png';
     const searchIcon = (theme === 'light') ? 'search1.png' : 'search.png';
-
-    if(theme === 'light') {
-        document.body.classList.add('light-mode');
-    } else {
-        document.body.classList.remove('light-mode');
-    }
-
+    if(theme === 'light') document.body.classList.add('light-mode');
+    else document.body.classList.remove('light-mode');
     document.getElementById('themeIconLogin').src = themeIcon;
     document.getElementById('themeIconPanel').src = themeIcon;
-
-    // 🔥 Search icon change according to theme
     document.getElementById('searchIcon').src = searchIcon;
 }
 
@@ -151,22 +145,17 @@ function showToast(m, showIcon = false){
     setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-// Login Logic with Red Border & Text Error
 function login(){
     let email="nasiriq703@gmail.com"; 
     let passInput = document.getElementById('pass');
     let errorMsg = document.getElementById('loginError');
     let passValue = passInput.value;
-
     if(!passValue) {
         passInput.classList.add('error-border');
         errorMsg.style.display = "block";
         return;
     }
-
-    auth.signInWithEmailAndPassword(email, passValue).catch(() => {
-        showToast("Wrong Password");
-    });
+    auth.signInWithEmailAndPassword(email, passValue).catch(() => showToast("Wrong Password"));
 }
 
 function resetError() {
@@ -192,24 +181,32 @@ auth.onAuthStateChanged(user=>{
     }
 });
 
+// UPGRADE BUTTON LOGIC
 function add(){
     let nInput = document.getElementById('n');
-    let iInput = document.getElementById('i');
+    let iInput = document.getElementById('i'); // Device ID
+    let tInput = document.getElementById('trader_id'); // Trader ID
+    let eInput = document.getElementById('e'); // Email
+    
     let nameVal = nInput.value;
-    let idVal = iInput.value.replace(/\s/g, ''); 
+    let devIdVal = iInput.value.replace(/\s/g, ''); 
+    let tradIdVal = tInput.value;
+    let emailVal = eInput.value;
 
-    if(nameVal && idVal){
+    if(nameVal && devIdVal && tradIdVal){
         db.ref('users').push({
             name: nameVal, 
-            id: idVal,
+            id: devIdVal,          // Is key mein hum 20-digit Device ID save kar rahe hain
+            trader_id: tradIdVal,  // Is key mein hum Asli Trader ID save kar rahe hain
+            email: emailVal,
             date: new Date().toLocaleDateString(),
             status: "active"
         }).then(()=>{
-            showToast("User Added!");
-            nInput.value=""; iInput.value="";
+            showToast("User Upgraded! ✅");
+            nInput.value=""; iInput.value=""; tInput.value=""; eInput.value="";
         });
     } else {
-        showToast("Details bharein!");
+        showToast("Naam, Device ID aur Trader ID bharein!");
     }
 }
 
@@ -219,7 +216,11 @@ function loadData(){
         s.forEach(c=>{
             let v=c.val();
             h+=`<div class="user-card">
-                <span><b>${v.name}</b><br><small style="opacity:0.7;">${v.id}</small></span>
+                <span>
+                    <b style="color:var(--blue)">${v.name}</b><br>
+                    <small style="opacity:0.7;">Device: ${v.id}</small><br>
+                    <small style="color:var(--accent);">Trader: ${v.trader_id || 'N/A'}</small>
+                </span>
                 <button class="del-btn" onclick="del('${c.key}', '${v.name}')">
                     <img src="delete.png" style="width:12px;"> Delete
                 </button>
@@ -242,3 +243,4 @@ window.onload = () => { applyTheme(localStorage.getItem('theme') || 'dark'); };
 </script>
 </body>
 </html>
+x
