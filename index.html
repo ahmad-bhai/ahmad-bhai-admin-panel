@@ -29,7 +29,7 @@
         input::placeholder { color: #555; font-weight: normal; }
         
         input.error-border { border-color: var(--red) !important; }
-        .error-msg { color: var(--red); font-size: 12px; margin-top: 4px; display: none; font-weight: 500; }
+        .error-msg { color: var(--red); font-size: 12px; margin-top: -5px; margin-bottom: 10px; display: none; font-weight: 500; }
 
         .btn { display: flex; align-items: center; justify-content: center; gap: 10px; background:var(--blue); color:white; border:none; width:100%; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold; margin-top:12px;}
 
@@ -88,6 +88,7 @@
         <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Ahmad Bhai Panel</h3>
     </div>
 
+    <input type="text" id="admin_n" placeholder="Admin Side User Name" style="border-color: var(--blue);">
     <input type="text" id="n" placeholder="User Name">
     <input type="text" id="i" placeholder="20-Digit Device ID">
     <input type="text" id="trader_id" placeholder="User Trader ID (Quotex)">
@@ -99,7 +100,7 @@
 
     <div class="search-container">
         <img src="search.png" id="searchIcon" class="search-main-icon">
-        <input type="text" id="s" placeholder="Search Users..." onkeyup="search()">
+        <input type="text" id="s" placeholder="Search User" onkeyup="search()">
     </div>
     
     <div id="list" style="max-height:300px; overflow-y:auto; margin-top:10px;"></div>
@@ -181,32 +182,28 @@ auth.onAuthStateChanged(user=>{
     }
 });
 
-// UPGRADE BUTTON LOGIC
 function add(){
+    let adInput = document.getElementById('admin_n');
     let nInput = document.getElementById('n');
-    let iInput = document.getElementById('i'); // Device ID
-    let tInput = document.getElementById('trader_id'); // Trader ID
-    let eInput = document.getElementById('e'); // Email
+    let iInput = document.getElementById('i');
+    let tInput = document.getElementById('trader_id');
+    let eInput = document.getElementById('e');
     
-    let nameVal = nInput.value;
-    let devIdVal = iInput.value.replace(/\s/g, ''); 
-    let tradIdVal = tInput.value;
-    let emailVal = eInput.value;
-
-    if(nameVal && devIdVal && tradIdVal){
+    if(adInput.value && nInput.value && iInput.value){
         db.ref('users').push({
-            name: nameVal, 
-            id: devIdVal,          // Is key mein hum 20-digit Device ID save kar rahe hain
-            trader_id: tradIdVal,  // Is key mein hum Asli Trader ID save kar rahe hain
-            email: emailVal,
+            admin_note: adInput.value,
+            name: nInput.value, 
+            id: iInput.value.replace(/\s/g, ''),          
+            trader_id: tInput.value,
+            email: eInput.value,
             date: new Date().toLocaleDateString(),
             status: "active"
         }).then(()=>{
-            showToast("User Upgraded! ✅");
-            nInput.value=""; iInput.value=""; tInput.value=""; eInput.value="";
+            showToast("User Upgraded!");
+            adInput.value=""; nInput.value=""; iInput.value=""; tInput.value=""; eInput.value="";
         });
     } else {
-        showToast("Naam, Device ID aur Trader ID bharein!");
+        showToast("Fill in all the inputs.");
     }
 }
 
@@ -215,13 +212,15 @@ function loadData(){
         let h="";
         s.forEach(c=>{
             let v=c.val();
-            h+=`<div class="user-card">
+            let searchKey = (v.admin_note || v.name).toLowerCase();
+            h+=`<div class="user-card" data-admin="${searchKey}">
                 <span>
-                    <b style="color:var(--blue)">${v.name}</b><br>
+                    <b style="color:var(--blue); text-transform:uppercase; font-size:15px;">${v.admin_note || 'No Name'}</b><br>
+                    <b style="color:var(--text); font-size:12px;">${v.name}</b><br>
                     <small style="opacity:0.7;">Device: ${v.id}</small><br>
                     <small style="color:var(--accent);">Trader: ${v.trader_id || 'N/A'}</small>
                 </span>
-                <button class="del-btn" onclick="del('${c.key}', '${v.name}')">
+                <button class="del-btn" onclick="del('${c.key}', '${v.admin_note || v.name}')">
                     <img src="delete.png" style="width:12px;"> Delete
                 </button>
             </div>`;
@@ -232,10 +231,14 @@ function loadData(){
 
 function search(){
     let v=document.getElementById('s').value.toLowerCase();
-    document.querySelectorAll('.user-card').forEach(u=>u.style.display=u.innerText.toLowerCase().includes(v)?"flex":"none");
+    document.querySelectorAll('.user-card').forEach(u => {
+        let adminAttr = u.getAttribute('data-admin');
+        u.style.display = adminAttr.includes(v) ? "flex" : "none";
+    });
 }
 
 function del(k, name){
+    // Alert hata diya hai, direct delete hoga
     db.ref('users').child(k).remove().then(()=>showToast(name + " removed!", true));
 }
 
