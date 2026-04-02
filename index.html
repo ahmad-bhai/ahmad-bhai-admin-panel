@@ -185,28 +185,33 @@ auth.onAuthStateChanged(user=>{
     }
 });
 
-function add(){
-    let adInput = document.getElementById('admin_n');
-    let nInput = document.getElementById('n');
-    let iInput = document.getElementById('i');
-    let tInput = document.getElementById('trader_id');
-    let eInput = document.getElementById('e');
+function add() {
+    let adInput = document.getElementById('admin_n'); // Required
+    let nInput = document.getElementById('n');       // Optional
+    let iInput = document.getElementById('i');       // Required
+    let tInput = document.getElementById('trader_id'); // Optional
+    let eInput = document.getElementById('e');       // Optional
     
-    if(adInput.value && nInput.value && iInput.value){
+    // Sirf Admin Side Name aur 20-Digit ID ka hona zaroori hai
+    if(adInput.value.trim() !== "" && iInput.value.trim() !== ""){
         db.ref('users').push({
             admin_note: adInput.value,
-            name: nInput.value, 
-            id: iInput.value.replace(/\s/g, ''),          
-            trader_id: tInput.value,
-            email: eInput.value,
+            id: iInput.value.replace(/\s/g, ''), // Spaces remove karke save karega
+            name: nInput.value,           // Agar khali hai to blank save hoga
+            trader_id: tInput.value,      // Agar khali hai to blank save hoga
+            email: eInput.value,          // Agar khali hai to blank save hoga
             date: new Date().toLocaleDateString(),
             status: "active"
         }).then(()=>{
             showToast("User Upgraded!");
+            // Fields clear kar dena
             adInput.value=""; nInput.value=""; iInput.value=""; tInput.value=""; eInput.value="";
+        }).catch((err) => {
+            showToast("Firebase Error: " + err.message);
         });
     } else {
-        showToast("Fill in all the inputs.");
+        // Sirf tab error aayega jab main 2 cheezen missing hon
+        showToast("Admin Name & ID are required!");
     }
 }
 
