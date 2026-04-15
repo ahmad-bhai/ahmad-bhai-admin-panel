@@ -51,6 +51,16 @@
         @keyframes pop { from {bottom: 0; opacity:0;} to {bottom: 30px; opacity:1;} }
         
         .hidden { display:none !important; }
+
+        /* Toggles Styling */
+        #toggleBox { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border); display: none; }
+        .t-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; }
+        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--blue); }
+        input:checked + .slider:before { transform: translateX(16px); }
     </style>
 </head>
 <body>
@@ -88,14 +98,22 @@
         <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Ahmad Bhai Admin Panel</h3>
     </div>
 
-    <input type="text" id="admin_n" placeholder="Admin Side User Name" style="border-color: var(--blue);">
+    <input type="text" id="admin_n" placeholder="Admin Side User Name" style="border-color: var(--blue);" oninput="showToggles()">
     <input type="text" id="n" placeholder="User Name">
-    
-    <input type="text" id="i" placeholder="20-Digit Device ID" maxlength="20">
-    
+    <input type="text" id="i" placeholder="20-Digit Device ID" maxlength="20" oninput="showToggles()">
     <input type="text" id="trader_id" placeholder="User Trader ID (Quotex)" maxlength="8">
-    
     <input type="email" id="e" placeholder="User Email">
+
+    <div id="toggleBox">
+        <div class="t-row"><span>Mobile Live</span><label class="switch"><input type="checkbox" id="t_android" checked><span class="slider"></span></label></div>
+        <div class="t-row"><span>PC Live</span><label class="switch"><input type="checkbox" id="t_pc" checked><span class="slider"></span></label></div>
+        <div class="t-row"><span>Loss Trade Win</span><label class="switch"><input type="checkbox" id="t_win" checked><span class="slider"></span></label></div>
+        <div class="t-row"><span>Customize Leaderboard</span><label class="switch"><input type="checkbox" id="t_lb" checked><span class="slider"></span></label></div>
+        <div class="t-row"><span>Payment</span><label class="switch"><input type="checkbox" id="t_p" checked><span class="slider"></span></label></div>
+        <div class="t-row"><span>Payments</span><label class="switch"><input type="checkbox" id="t_t" checked><span class="slider"></span></label></div>
+        <div class="t-row"><span>Analytics</span><label class="switch"><input type="checkbox" id="t_ana" checked><span class="slider"></span></label></div>
+        <button class="btn" style="padding:8px; font-size:12px; background:var(--accent);" onclick="document.getElementById('toggleBox').style.display='none'">DONE</button>
+    </div>
 
     <button class="btn" onclick="add()">
         <img src="upgrade.png" style="width:20px;"> UPGRADE
@@ -123,6 +141,12 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
+
+function showToggles() {
+    let ad = document.getElementById('admin_n').value.trim();
+    let id = document.getElementById('i').value.trim();
+    document.getElementById('toggleBox').style.display = (ad && id) ? "block" : "none";
+}
 
 function applyTheme(theme) {
     const themeIcon = (theme === 'light') ? 'moon.png' : 'sun.png';
@@ -186,31 +210,38 @@ auth.onAuthStateChanged(user=>{
 });
 
 function add() {
-    let adInput = document.getElementById('admin_n'); // Required
-    let nInput = document.getElementById('n');       // Optional
-    let iInput = document.getElementById('i');       // Required
-    let tInput = document.getElementById('trader_id'); // Optional
-    let eInput = document.getElementById('e');       // Optional
+    let adInput = document.getElementById('admin_n');
+    let nInput = document.getElementById('n');
+    let iInput = document.getElementById('i');
+    let tInput = document.getElementById('trader_id');
+    let eInput = document.getElementById('e');
     
-    // Sirf Admin Side Name aur 20-Digit ID ka hona zaroori hai
     if(adInput.value.trim() !== "" && iInput.value.trim() !== ""){
+        let perms = {
+            android: document.getElementById('t_android').checked,
+            pc: document.getElementById('t_pc').checked,
+            win: document.getElementById('t_win').checked,
+            lb: document.getElementById('t_lb').checked,
+            p: document.getElementById('t_p').checked,
+            t: document.getElementById('t_t').checked,
+            ana: document.getElementById('t_ana').checked
+        };
+
         db.ref('users').push({
             admin_note: adInput.value,
-            id: iInput.value.replace(/\s/g, ''), // Spaces remove karke save karega
-            name: nInput.value,           // Agar khali hai to blank save hoga
-            trader_id: tInput.value,      // Agar khali hai to blank save hoga
-            email: eInput.value,          // Agar khali hai to blank save hoga
+            id: iInput.value.replace(/\s/g, ''),
+            name: nInput.value,
+            trader_id: tInput.value,
+            email: eInput.value,
             date: new Date().toLocaleDateString(),
-            status: "active"
+            status: "active",
+            permissions: perms
         }).then(()=>{
             showToast("User Upgraded!");
-            // Fields clear kar dena
             adInput.value=""; nInput.value=""; iInput.value=""; tInput.value=""; eInput.value="";
-        }).catch((err) => {
-            showToast("Firebase Error: " + err.message);
-        });
+            document.getElementById('toggleBox').style.display = "none";
+        }).catch((err) => showToast("Error: " + err.message));
     } else {
-        // Sirf tab error aayega jab main 2 cheezen missing hon
         showToast("Admin Name & ID are required!");
     }
 }
