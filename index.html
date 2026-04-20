@@ -61,29 +61,9 @@
         .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--blue); }
         input:checked + .slider:before { transform: translateX(16px); }
- 
-/* Loader Wrapper Styling */
-#loader-wrapper {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #12192B; display: flex; flex-direction: column;
-    justify-content: center; align-items: center; z-index: 999999;
-}
-
-/* Initially hide the boxes so they don't overlap */
-.box.hidden-initially {
-    display: none !important;
-}
-
     </style>
 </head>
 <body>
-<div id="loader-wrapper">
-    <div class="technical-works__cube"></div>
-    <div class="technical-works__block">
-        <div class="technical-works__block-title" style="font-size: 24px; color: #fff;">AHMAD BHAI CODES</div>
-        <div class="technical-works__block-subtitle" style="color: #64748b;">Securing Connection...</div>
-    </div>
-</div>
 
 <div id="toast">
     <span id="toastText">Done!</span>
@@ -152,46 +132,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
 <script>
-(function() {
-    // 1. AAPKA ASLI DOMAIN
-    const authorizedDomain = "ahmad-bhai-admin-panel.vercel.app";
-    const currentDomain = window.location.hostname;
-
-    // 2. CHECK LOGIC
-    if (currentDomain !== authorizedDomain && currentDomain !== "localhost") {
-        
-        // AGAR DOMAIN GALAT HAI: Maintenance Page dikhao
-        document.documentElement.innerHTML = `
-            <div id="maintenance-screen" class="technical-works" style="position:fixed; inset:0; background:#12192B; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:999999; font-family:sans-serif;">
-                <div class="technical-works__cube"></div>
-                <div class="technical-works__block" style="text-align:center;">
-                    <div class="technical-works__block-title" style="font-size:28px; font-weight:bold; color:#fff; margin-bottom:10px;">Under Maintenance</div>
-                    <div class="technical-works__block-subtitle" style="color:#64748b;">
-                        
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // 3 SECONDS BAAD REDIRECT
-        setTimeout(() => {
-            window.location.href = "/unfinded"; 
-        }, 100);
-
-        // Niche wala baki code execute na ho isliye stop kar diya
-        window.stop();
-        throw new Error("Unauthorized Access");
-    }
-    
-    // AGAR DOMAIN SAHI HAI: Toh kuch nahi hoga, direct panel chale ga.
-
-    // --- SECURITY JS (ANTI-DEBUG) ---
-    setInterval(() => {
-        (function() { return false; }['constructor']('debugger')['call']());
-    }, 100);
-})();
-
-
 const firebaseConfig = { 
     apiKey:"AIzaSyDS3Vc-QJScL5UnpHAd3ZV-Sk-57plSjKI",
     authDomain:"reactions-maker-site.firebaseapp.com",
