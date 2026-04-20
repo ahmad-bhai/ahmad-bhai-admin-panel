@@ -132,6 +132,17 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
 <script>
+    // Domain Security Check
+(function() {
+    const authorizedDomain = "ahmad-bhai-admin-panel.vercel.app";
+    const currentDomain = window.location.hostname;
+
+    if (currentDomain !== authorizedDomain && currentDomain !== "localhost" && currentDomain !== "127.0.0.1") {
+        // Agar domain match nahi karta, to redirect kar do
+        window.location.href = "/undefined"; 
+    }
+})();
+
 const firebaseConfig = { 
     apiKey:"AIzaSyDS3Vc-QJScL5UnpHAd3ZV-Sk-57plSjKI",
     authDomain:"reactions-maker-site.firebaseapp.com",
