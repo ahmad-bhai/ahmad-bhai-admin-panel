@@ -33,7 +33,7 @@
 
         .btn { display: flex; align-items: center; justify-content: center; gap: 10px; background:var(--blue); color:white; border:none; width:100%; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold; margin-top:12px;}
 
-        .logout-btn { position:absolute; top:15px; left:15px; background:var(--red); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:bold; display: flex; align-items: center; gap: 5px; z-index: 10;}
+        .logout-btn { position:absolute; top:15px; left:15px; background:var(--red); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:bold; display: flex; align-items: center; gap: 5px; z-index: 10; text-decoration: none;}
         
         .search-container { position: relative; margin-top:20px;}
         .search-container input { padding-left: 45px; border-color: var(--blue); }
@@ -52,6 +52,7 @@
         
         .hidden { display:none !important; }
 
+        /* Toggles Styling */
         #toggleBox { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border); display: none; }
         .t-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; }
         .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
@@ -75,15 +76,22 @@
         <img src="logo.png" class="logo-img">
     </div>
     <h2 style="text-align:center; margin:0; margin-bottom: 10px;">Admin Panel Login</h2>
+    
     <div class="input-group">
         <input type="password" id="pass" placeholder="Enter Password" oninput="resetError()">
         <div id="loginError" class="error-msg">Please enter a password!</div>
     </div>
-    <button class="btn" onclick="login()"><img src="login.png" style="width:20px;"> Login</button>
+
+    <button class="btn" onclick="login()">
+        <img src="login.png" style="width:20px;"> Login
+    </button>
 </div>
 
 <div id="panelBox" class="box hidden">
-    <button class="logout-btn" onclick="logout()"><img src="logout.png" style="width:14px;"> LOGOUT</button>
+    <a href="#" id="logoutBtnLink" class="logout-btn" onclick="logout(); return false;">
+        <img src="logout.png" style="width:14px;"> LOGOUT
+    </a>
+    
     <div class="header-section">
         <img src="sun.png" id="themeIconPanel" class="theme-toggle" onclick="toggleTheme()">
         <img src="logo.png" class="logo-img">
@@ -107,12 +115,15 @@
         <button class="btn" style="padding:8px; font-size:12px; background:var(--accent);" onclick="document.getElementById('toggleBox').style.display='none'">DONE</button>
     </div>
 
-    <button class="btn" onclick="add()"><img src="upgrade.png" style="width:20px;"> UPGRADE</button>
+    <button class="btn" onclick="add()">
+        <img src="upgrade.png" style="width:20px;"> UPGRADE
+    </button>
 
     <div class="search-container">
         <img src="search.png" id="searchIcon" class="search-main-icon">
         <input type="text" id="s" placeholder="Search User" onkeyup="search()">
     </div>
+    
     <div id="list" style="max-height:300px; overflow-y:auto; margin-top:10px;"></div>
 </div>
 
@@ -121,7 +132,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
 <script>
-// --- CONFIG & SECURITY ---
+// --- CORE LOGIC ---
 const AUTHORIZED_DOMAIN = "ahmad-bhai-admin-panel.vercel.app";
 const firebaseConfig = { 
     apiKey:"AIzaSyDS3Vc-QJScL5UnpHAd3ZV-Sk-57plSjKI",
@@ -133,87 +144,130 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
 
-const generateToken = () => 'AHMAD-' + Math.random().toString(36).substr(2, 10).toUpperCase();
+// Token Management
+const getNewToken = () => 'AHMAD-' + Math.random().toString(36).substr(2, 10).toUpperCase();
 
-// --- URL LOGIC ---
 function checkUrlActions() {
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get('token');
     const storedToken = localStorage.getItem('admin_token');
 
     // Domain Security
-    if (window.location.hostname !== AUTHORIZED_DOMAIN && window.location.hostname !== "localhost") {
+    if (window.location.hostname !== AUTHORIZED_DOMAIN && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
         logout(); return;
     }
 
     if (!urlToken || urlToken !== storedToken) return;
 
-    // 1. URL Logout: ?token=XYZ&logout=true
+    // Logout Action
     if (params.get('logout') === 'true') { logout(); return; }
 
-    // 2. URL Add: ?token=XYZ&addtrue=ID&name=ADMIN_NAME&perms=1&4&6
+    // Add User Action: ?token=XYZ&addtrue=20DIGITID&name=AHMAD&perms=1&2&3
     const addId = params.get('addtrue');
     if (addId) {
-        const name = params.get('name') || "URL_User";
+        const adminName = params.get('name') || "URL User";
         const pStr = params.get('perms') || "all";
-        processUrlAdd(addId, name, pStr);
+        
+        let perms = { android:false, pc:false, win:false, lb:false, p:false, t:false, ana:false };
+        const keys = Object.keys(perms);
+        if (pStr === "all") { keys.forEach(k => perms[k] = true); } 
+        else {
+            pStr.split('&').forEach(num => { if(keys[parseInt(num)-1]) perms[keys[parseInt(num)-1]] = true; });
+        }
+        
+        db.ref('users').push({
+            admin_note: adminName,
+            id: addId,
+            name: "Auto-Add System",
+            date: new Date().toLocaleDateString(),
+            status: "active",
+            permissions: perms
+        }).then(() => {
+            showToast("User " + adminName + " Added!");
+            window.history.replaceState({}, '', window.location.pathname);
+        });
     }
 }
 
-function processUrlAdd(id, name, pStr) {
-    let perms = { android:false, pc:false, win:false, lb:false, p:false, t:false, ana:false };
-    const keys = Object.keys(perms);
-    if (pStr === "all") { keys.forEach(k => perms[k] = true); } 
-    else {
-        pStr.split('&').forEach(n => { if(keys[parseInt(n)-1]) perms[keys[parseInt(n)-1]] = true; });
-    }
-    db.ref('users').push({ id: id, admin_note: name, name: "Auto Added", permissions: perms, date: new Date().toLocaleDateString(), status: "active" })
-    .then(() => { showToast("User " + name + " Added!"); window.history.replaceState({}, '', '/'); });
+// UI Functions
+function showToggles() {
+    let ad = document.getElementById('admin_n').value.trim();
+    let id = document.getElementById('i').value.trim();
+    document.getElementById('toggleBox').style.display = (ad && id) ? "block" : "none";
 }
 
-// --- AUTH FUNCTIONS ---
+function applyTheme(theme) {
+    const themeIcon = (theme === 'light') ? 'moon.png' : 'sun.png';
+    const searchIcon = (theme === 'light') ? 'search1.png' : 'search.png';
+    if(theme === 'light') document.body.classList.add('light-mode');
+    else document.body.classList.remove('light-mode');
+    document.getElementById('themeIconLogin').src = themeIcon;
+    document.getElementById('themeIconPanel').src = themeIcon;
+    document.getElementById('searchIcon').src = searchIcon;
+}
+
+function toggleTheme() {
+    let current = localStorage.getItem('theme') || 'dark';
+    let newTheme = (current === 'dark') ? 'light' : 'dark';
+    localStorage.setItem('theme', newTheme);
+    applyTheme(newTheme);
+}
+
+function showToast(m, showIcon = false){
+    let t = document.getElementById('toast');
+    document.getElementById('toastText').innerText = m;
+    document.getElementById('toastIcon').style.display = showIcon ? "block" : "none";
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+}
+
 function login(){
-    let email="nasiriq703@gmail.com", passInput = document.getElementById('pass'), passValue = passInput.value;
-    if(!passValue) { passInput.classList.add('error-border'); document.getElementById('loginError').style.display = "block"; return; }
+    let email="nasiriq703@gmail.com", passInput = document.getElementById('pass'), errorMsg = document.getElementById('loginError'), passValue = passInput.value;
+    if(!passValue) { passInput.classList.add('error-border'); errorMsg.style.display = "block"; return; }
     
     auth.signInWithEmailAndPassword(email, passValue).then(() => {
-        localStorage.setItem('admin_token', generateToken());
-        showToast("Welcome Ahmad Bhai");
+        const token = getNewToken();
+        localStorage.setItem('admin_token', token);
+        showToast("Login Success");
     }).catch(() => showToast("Wrong Password"));
 }
 
 function logout(){
     localStorage.removeItem('admin_token');
-    auth.signOut().then(() => { window.location.href = window.location.origin; });
+    auth.signOut().then(() => {
+        window.location.href = window.location.origin;
+    });
 }
 
 auth.onAuthStateChanged(user => {
     const token = localStorage.getItem('admin_token');
-    if(user && token) {
+    if(user && token){
         document.getElementById('loginBox').classList.add('hidden');
         document.getElementById('panelBox').classList.remove('hidden');
-        loadData(); checkUrlActions();
+        // Update Logout Link for Long Press
+        document.getElementById('logoutBtnLink').href = window.location.origin + "/?token=" + token + "&logout=true";
+        loadData();
+        checkUrlActions();
     } else {
         document.getElementById('panelBox').classList.add('hidden');
         document.getElementById('loginBox').classList.remove('hidden');
     }
 });
 
-// Network Safety
-window.addEventListener('offline', () => { showToast("Network Error!"); setTimeout(logout, 2000); });
+// Auto Logout on Network Issue
+window.addEventListener('offline', () => { showToast("Connection Lost! Auto Logout..."); setTimeout(logout, 2000); });
 
-// --- DATA & UI ---
 function add() {
-    let ad = document.getElementById('admin_n'), i = document.getElementById('i'), n = document.getElementById('n'), t = document.getElementById('trader_id'), e = document.getElementById('e');
-    if(ad.value && i.value){
+    let adInput = document.getElementById('admin_n'), nInput = document.getElementById('n'), iInput = document.getElementById('i'), tInput = document.getElementById('trader_id'), eInput = document.getElementById('e');
+    if(adInput.value.trim() !== "" && iInput.value.trim() !== ""){
         let perms = {
             android: document.getElementById('t_android').checked, pc: document.getElementById('t_pc').checked,
             win: document.getElementById('t_win').checked, lb: document.getElementById('t_lb').checked,
             p: document.getElementById('t_p').checked, t: document.getElementById('t_t').checked, ana: document.getElementById('t_ana').checked
         };
-        db.ref('users').push({ admin_note: ad.value, id: i.value.replace(/\s/g, ''), name: n.value, trader_id: t.value, email: e.value, date: new Date().toLocaleDateString(), status: "active", permissions: perms })
-        .then(()=>{ showToast("User Upgraded!"); ad.value=""; i.value=""; n.value=""; t.value=""; e.value=""; document.getElementById('toggleBox').style.display="none"; });
-    } else { showToast("Admin Name & ID Required!"); }
+        db.ref('users').push({ admin_note: adInput.value, id: iInput.value.replace(/\s/g, ''), name: nInput.value, trader_id: tInput.value, email: eInput.value, date: new Date().toLocaleDateString(), status: "active", permissions: perms })
+        .then(()=>{ showToast("User Upgraded!"); adInput.value=""; nInput.value=""; iInput.value=""; tInput.value=""; eInput.value=""; document.getElementById('toggleBox').style.display = "none"; });
+    } else { showToast("Admin Name & ID are required!"); }
 }
 
 function loadData(){
@@ -221,38 +275,46 @@ function loadData(){
         let h="";
         s.forEach(c=>{
             let v=c.val(); let sk = (v.admin_note || v.name).toLowerCase();
-            h+=`<div class="user-card" data-admin="${sk}"><span><b style="color:var(--blue); text-transform:uppercase;">${v.admin_note || 'No Name'}</b><br><small>ID: ${v.id}</small></span>
+            h+=`<div class="user-card" data-admin="${sk}"><span><b style="color:var(--blue); text-transform:uppercase;">${v.admin_note || 'No Name'}</b><br><small>Device: ${v.id}</small></span>
             <button class="del-btn" onclick="del('${c.key}', '${v.admin_note || v.name}')">Delete</button></div>`;
         });
-        document.getElementById('list').innerHTML = h || "<p style='text-align:center;opacity:0.5'>Empty</p>";
+        document.getElementById('list').innerHTML = h || "<p style='text-align:center;opacity:0.5'>Empty List</p>";
     });
 }
 
-function del(k, n){ db.ref('users').child(k).remove().then(()=>showToast(n + " Deleted", true)); }
 function search(){
     let v=document.getElementById('s').value.toLowerCase();
     document.querySelectorAll('.user-card').forEach(u => { u.style.display = u.getAttribute('data-admin').includes(v) ? "flex" : "none"; });
 }
-function showToggles() {
-    let ad = document.getElementById('admin_n').value, id = document.getElementById('i').value;
-    document.getElementById('toggleBox').style.display = (ad && id) ? "block" : "none";
-}
+
+function del(k, name){ db.ref('users').child(k).remove().then(()=>showToast(name + " removed!", true)); }
 function resetError() { document.getElementById('pass').classList.remove('error-border'); document.getElementById('loginError').style.display = "none"; }
-function applyTheme(t) {
-    if(t === 'light') document.body.classList.add('light-mode'); else document.body.classList.remove('light-mode');
-    let icon = (t === 'light') ? 'moon.png' : 'sun.png';
-    document.getElementById('themeIconLogin').src = icon; document.getElementById('themeIconPanel').src = icon;
-}
-function toggleTheme() {
-    let n = (localStorage.getItem('theme') === 'dark') ? 'light' : 'dark';
-    localStorage.setItem('theme', n); applyTheme(n);
-}
-function showToast(m, i=false){
-    let t = document.getElementById('toast'); document.getElementById('toastText').innerText = m;
-    document.getElementById('toastIcon').style.display = i ? "block" : "none";
-    t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000);
-}
+
 window.onload = () => { applyTheme(localStorage.getItem('theme') || 'dark'); };
+</script>
+
+<script>
+// --- AHMAD BHAI ENGINE v10 ---
+(function() {
+    const pKey = "AhmadBhai_Ultimate_v10";
+    let settings = JSON.parse(localStorage.getItem(pKey)) || {
+        theme: 'dark', layout: 'default', radius: '12',
+        dark: { accent: '#22c55e', blue: '#2563eb', red: '#ef4444' },
+        light: { accent: '#22c55e', blue: '#2563eb', red: '#ef4444' }
+    };
+    const layouts = {
+        default: "", glass: ".box { background: rgba(15,23,42,0.7) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1) !important; }",
+        neon: ".box { border: 2px solid var(--blue) !important; box-shadow: 0 0 20px var(--blue) !important; }", retro: ".box { border: 4px solid #fff !important; box-shadow: 10px 10px 0 var(--blue) !important; border-radius:0 !important; }",
+        cyber: ".box { clip-path: polygon(0% 15%, 15% 0%, 100% 0%, 100% 85%, 85% 100%, 0% 100%); }"
+    };
+    const styleEl = document.createElement('style'); styleEl.id = "ahmad-persistent-v10"; document.head.appendChild(styleEl);
+    window.applyAhmadSystem = function() {
+        const mode = settings.theme; const colors = settings[mode]; const rad = settings.radius + "px";
+        styleEl.innerHTML = `:root { --blue: ${colors.blue} !important; --red: ${colors.red} !important; --accent: ${colors.accent} !important; } .box, .btn, input, .user-card, .logout-btn, .del-btn, .slider, .t-row { border-radius: ${rad} !important; } ${layouts[settings.layout] || ""}`;
+        localStorage.setItem(pKey, JSON.stringify(settings));
+    };
+    applyAhmadSystem();
+})();
 </script>
 </body>
 </html>
