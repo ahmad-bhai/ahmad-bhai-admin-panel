@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN PANEL | AHMAD TRADER</title>
+    <title>ADMIN PANEL | AHMAD BHAI</title>
     <link rel="icon" href="logo.png" type="image/png" />
+
     <style>
         :root { 
             --accent:#22c55e; --blue:#2563eb; --red:#ef4444; 
@@ -15,34 +16,43 @@
         }
         body { background:var(--bg); color:var(--text); font-family:'Segoe UI',sans-serif; display:flex; justify-content:center; padding:20px; transition:0.3s;}
         
-        .box { background:var(--card); padding:30px; border-radius:30px; width:450px; border:1px solid var(--border); box-shadow:0 20px 40px rgba(0,0,0,0.2); position:relative; overflow: hidden;}
+        .box { background:var(--card); padding:30px; border-radius:30px; width:450px; border:1px solid var(--border); box-shadow:0 20px 40px rgba(0,0,0,0.2); position:relative;}
         
         .header-section { position:relative; text-align:center; margin-bottom:25px; padding-top:10px;}
         .logo-img { width:100px; height:100px; border-radius:50%; animation:zoomInOut 4s infinite; border:3px solid var(--blue);}
         @keyframes zoomInOut {0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
         
-        /* Token Source Section Styling */
-        .token-source-panel {
-            background: rgba(37, 99, 235, 0.1);
-            border: 1px solid var(--blue);
-            border-radius: 15px;
-            padding: 10px;
-            margin-bottom: 20px;
-            font-size: 12px;
-        }
-        .source-item { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding: 5px 0; }
-        .source-item:last-child { border: none; }
-
+        .theme-toggle { position:absolute; top:0; right:0; cursor:pointer; width:30px; height:30px; transition: 0.3s; z-index: 15;}
+        
         .input-group { margin: 8px 0; position: relative; }
         input { width:100%; padding:14px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--accent); font-weight: bold; outline: none; box-sizing: border-box; transition: 0.3s; margin-bottom: 10px;}
+        input::placeholder { color: #555; font-weight: normal; }
         
+        input.error-border { border-color: var(--red) !important; }
+        .error-msg { color: var(--red); font-size: 12px; margin-top: -5px; margin-bottom: 10px; display: none; font-weight: 500; }
+
         .btn { display: flex; align-items: center; justify-content: center; gap: 10px; background:var(--blue); color:white; border:none; width:100%; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold; margin-top:12px;}
-        .logout-btn { position:absolute; top:15px; left:15px; background:var(--red); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:bold; z-index: 10;}
+
+        .logout-btn { position:absolute; top:15px; left:15px; background:var(--red); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:bold; display: flex; align-items: center; gap: 5px; z-index: 10; text-decoration: none;}
         
-        #toast { visibility:hidden; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:var(--blue); color:white; padding:12px 25px; border-radius:50px; font-weight:bold; z-index:100;}
+        .search-container { position: relative; margin-top:20px;}
+        .search-container input { padding-left: 45px; border-color: var(--blue); }
+        .search-main-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; }
+
+        .user-card { background:rgba(120,120,120,0.1); padding:15px; border-radius:15px; margin-top:12px; display:flex; justify-content:space-between; align-items:center; border-left:5px solid var(--blue);}
+        .del-btn { background:var(--red); border:none; color:white; padding:8px 12px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:bold; display: flex; align-items: center; gap: 5px;}
+
+        #toast { 
+            visibility:hidden; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); 
+            background:var(--blue); color:white; padding:12px 25px; border-radius:50px; 
+            font-weight:bold; z-index:100; display: flex; align-items: center; gap: 10px;
+        }
         #toast.show { visibility:visible; animation: pop 0.3s ease; }
+        @keyframes pop { from {bottom: 0; opacity:0;} to {bottom: 30px; opacity:1;} }
+        
         .hidden { display:none !important; }
 
+        /* Toggles Styling */
         #toggleBox { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border); display: none; }
         .t-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; }
         .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
@@ -51,46 +61,73 @@
         .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--blue); }
         input:checked + .slider:before { transform: translateX(16px); }
+
+        .token-display { font-size: 10px; opacity: 0.5; text-align: center; margin-top: 5px; word-break: break-all; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="toast">Done!</div>
+<div id="toast">
+    <span id="toastText">Done!</span>
+    <img src="remove.png" id="toastIcon" style="display:none; width:20px;">
+</div>
 
-<div id="loginBox" class="box">
+<div id="loginBox" class="box hidden">
     <div class="header-section">
+        <img src="sun.png" id="themeIconLogin" class="theme-toggle" onclick="toggleTheme()">
         <img src="logo.png" class="logo-img">
     </div>
-    <h2 style="text-align:center;">Admin Panel Login</h2>
-    <input type="password" id="pass" placeholder="Enter Admin Password">
-    <button class="btn" onclick="login()">Secure Login</button>
+    <h2 style="text-align:center; margin:0; margin-bottom: 10px;">Admin Panel Login</h2>
+    
+    <div class="input-group">
+        <input type="password" id="pass" placeholder="Enter Password" oninput="resetError()">
+        <div id="loginError" class="error-msg">Please enter a password!</div>
+    </div>
+
+    <button class="btn" onclick="login()">
+        <img src="login.png" style="width:20px;"> Login
+    </button>
 </div>
 
 <div id="panelBox" class="box hidden">
-    <button class="logout-btn" onclick="logout()">LOGOUT</button>
+    <a id="logoutBtn" class="logout-btn" onclick="logout(event)">
+        <img src="logout.png" style="width:14px;"> LOGOUT
+    </a>
+    
     <div class="header-section">
+        <img src="sun.png" id="themeIconPanel" class="theme-toggle" onclick="toggleTheme()">
         <img src="logo.png" class="logo-img">
-        <h3 style="color:var(--blue);">TOKEN SOURCES (ACTIVE)</h3>
+        <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Ahmad Bhai Admin Panel</h3>
+        <div id="tokenLabel" class="token-display">Token: Loading...</div>
     </div>
 
-    <div class="token-source-panel" id="tokenSources">
-        <div class="source-item"><span><b>Source ID</b></span><span><b>Status</b></span></div>
-        <div id="sourceList">Loading sources...</div>
-    </div>
-
-    <input type="text" id="admin_n" placeholder="Admin Note" oninput="showToggles()">
+    <input type="text" id="admin_n" placeholder="Admin Side User Name" style="border-color: var(--blue);" oninput="showToggles()">
+    <input type="text" id="n" placeholder="User Name">
     <input type="text" id="i" placeholder="20-Digit Device ID" maxlength="20" oninput="showToggles()">
-    <input type="text" id="trader_id" placeholder="Trader ID">
+    <input type="text" id="trader_id" placeholder="User Trader ID (Quotex)" maxlength="8">
+    <input type="email" id="e" placeholder="User Email">
 
     <div id="toggleBox">
         <div class="t-row"><span>Mobile Live</span><label class="switch"><input type="checkbox" id="t_android" checked><span class="slider"></span></label></div>
         <div class="t-row"><span>PC Live</span><label class="switch"><input type="checkbox" id="t_pc" checked><span class="slider"></span></label></div>
-        <div class="t-row"><span>Loss/Win Logic</span><label class="switch"><input type="checkbox" id="t_win" checked><span class="slider"></span></label></div>
-        <button class="btn" style="padding:5px; font-size:10px;" onclick="document.getElementById('toggleBox').style.display='none'">CLOSE SETTINGS</button>
+        <div class="t-row"><span>Loss Trade Win</span><label class="switch"><input type="checkbox" id="t_win" checked><span class="slider"></span></label></div>
+        <div class="t-row"><span>Customize Leaderboard</span><label class="switch"><input type="checkbox" id="t_lb" checked><span class="slider"></span></label></div>
+        <div class="t-row"><span>Payment</span><label class="switch"><input type="checkbox" id="t_p" checked><span class="slider"></span></label></div>
+        <div class="t-row"><span>Payments</span><label class="switch"><input type="checkbox" id="t_t" checked><span class="slider"></span></label></div>
+        <div class="t-row"><span>Analytics</span><label class="switch"><input type="checkbox" id="t_ana" checked><span class="slider"></span></label></div>
+        <button class="btn" style="padding:8px; font-size:12px; background:var(--accent);" onclick="document.getElementById('toggleBox').style.display='none'">DONE</button>
     </div>
 
-    <button class="btn" onclick="add()">UPGRADE USER</button>
-    <div id="list" style="max-height:200px; overflow-y:auto; margin-top:15px;"></div>
+    <button class="btn" onclick="add()">
+        <img src="upgrade.png" style="width:20px;"> UPGRADE
+    </button>
+
+    <div class="search-container">
+        <img src="search.png" id="searchIcon" class="search-main-icon">
+        <input type="text" id="s" placeholder="Search User" onkeyup="search()">
+    </div>
+    
+    <div id="list" style="max-height:300px; overflow-y:auto; margin-top:10px;"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -98,25 +135,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
 <script>
-// --- HEAVY SECURITY LOGIC ---
-
-// 1. Domain & Network Security
-const checkSecurity = () => {
-    const authDomain = "ahmad-bhai-admin-panel.vercel.app";
-    if (window.location.hostname !== authDomain && window.location.hostname !== "localhost") {
-        logout(); // Kill session on unknown domain
-    }
-    if (!navigator.onLine) {
-        logout(); // Logout on network loss
-    }
-};
-
-window.addEventListener('offline', () => {
-    alert("Network lost. Security Logout.");
-    logout();
-});
-
-// 2. Firebase Init
+// --- Configuration & Security ---
+const authorizedDomain = "ahmad-bhai-admin-panel.vercel.app";
 const firebaseConfig = { 
     apiKey:"AIzaSyDS3Vc-QJScL5UnpHAd3ZV-Sk-57plSjKI",
     authDomain:"reactions-maker-site.firebaseapp.com",
@@ -127,78 +147,230 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
 
-// 3. Token Sources / Active Sessions Tracker
-function updateTokenSources() {
-    db.ref('users').limitToLast(5).on('value', snapshot => {
-        let html = "";
-        snapshot.forEach(child => {
-            const user = child.val();
-            html += `<div class="source-item">
-                <span>${user.id.substring(0,8)}...</span>
-                <span style="color:var(--accent)">● ${user.status || 'Active'}</span>
-            </div>`;
-        });
-        document.getElementById('sourceList').innerHTML = html || "No active tokens";
-    });
+// --- Token Logic ---
+function generateToken() {
+    return 'token_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
 }
 
-// 4. Core Functions
-function login(){
-    let email="nasiriq703@gmail.com";
-    let pass = document.getElementById('pass').value;
-    auth.signInWithEmailAndPassword(email, pass).catch(e => alert("Access Denied"));
+function updateLogoutLink(token) {
+    const baseUrl = window.location.origin + window.location.pathname;
+    const logoutUrl = `${baseUrl}?token=${token}&logout=true`;
+    const btn = document.getElementById('logoutBtn');
+    btn.href = logoutUrl;
 }
 
-function logout(){
-    auth.signOut();
-    location.reload();
-}
+// --- URL Parameter Handler (The "Magic" System) ---
+function handleUrlActions() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const savedToken = localStorage.getItem('admin_token');
 
-auth.onAuthStateChanged(user => {
-    if(user){
-        checkSecurity();
-        document.getElementById('loginBox').classList.add('hidden');
-        document.getElementById('panelBox').classList.remove('hidden');
-        updateTokenSources();
-        loadUsers();
+    // Security Check
+    if (token && token === savedToken) {
+        // 1. Check for Auto-Add via URL
+        const addId = params.get('addtrue');
+        if (addId) {
+            const name = params.get('name') || "URL User";
+            const permsRaw = params.get('perms') || "all";
+            
+            let permissions = {
+                android: permsRaw === 'all' || permsRaw.includes('1'),
+                pc: permsRaw === 'all' || permsRaw.includes('2'),
+                win: permsRaw === 'all' || permsRaw.includes('3'),
+                lb: permsRaw === 'all' || permsRaw.includes('4'),
+                p: permsRaw === 'all' || permsRaw.includes('5'),
+                t: permsRaw === 'all' || permsRaw.includes('6'),
+                ana: permsRaw === 'all' || permsRaw.includes('7')
+            };
+
+            db.ref('users').push({
+                admin_note: name,
+                id: addId,
+                name: "Added via Link",
+                date: new Date().toLocaleDateString(),
+                status: "active",
+                permissions: permissions
+            }).then(() => {
+                alert("User " + name + " added successfully via URL!");
+                window.location.href = window.location.pathname; // Clean URL
+            });
+        }
+
+        // 2. Check for Logout via URL
+        if (params.get('logout')) {
+            logout();
+        }
+    } else if (token && token !== savedToken) {
+        showToast("Invalid Token! Logging out...");
+        setTimeout(logout, 2000);
     }
-});
+}
 
+// --- Core Functions ---
 function showToggles() {
-    let ad = document.getElementById('admin_n').value;
-    let id = document.getElementById('i').value;
+    let ad = document.getElementById('admin_n').value.trim();
+    let id = document.getElementById('i').value.trim();
     document.getElementById('toggleBox').style.display = (ad && id) ? "block" : "none";
 }
 
-function add() {
-    let ad = document.getElementById('admin_n').value;
-    let id = document.getElementById('i').value;
-    if(ad && id){
-        db.ref('users').push({
-            admin_note: ad,
-            id: id,
-            trader_id: document.getElementById('trader_id').value,
-            status: "active",
-            timestamp: Date.now()
-        }).then(() => alert("User Authorized"));
-    }
+function applyTheme(theme) {
+    const themeIcon = (theme === 'light') ? 'moon.png' : 'sun.png';
+    const searchIcon = (theme === 'light') ? 'search1.png' : 'search.png';
+    if(theme === 'light') document.body.classList.add('light-mode');
+    else document.body.classList.remove('light-mode');
+    document.getElementById('themeIconLogin').src = themeIcon;
+    document.getElementById('themeIconPanel').src = themeIcon;
+    document.getElementById('searchIcon').src = searchIcon;
 }
 
-function loadUsers(){
-    db.ref('users').on('value', s => {
-        let h = "";
-        s.forEach(c => {
-            let v = c.val();
-            h += `<div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; margin-top:5px; font-size:12px;">
-                <b>${v.admin_note}</b> - ID: ${v.id}
-            </div>`;
-        });
-        document.getElementById('list').innerHTML = h;
+function toggleTheme() {
+    let current = localStorage.getItem('theme') || 'dark';
+    let newTheme = (current === 'dark') ? 'light' : 'dark';
+    localStorage.setItem('theme', newTheme);
+    applyTheme(newTheme);
+}
+
+function showToast(m, showIcon = false){
+    let t = document.getElementById('toast');
+    document.getElementById('toastText').innerText = m;
+    document.getElementById('toastIcon').style.display = showIcon ? "block" : "none";
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function login(){
+    let email="nasiriq703@gmail.com"; 
+    let passInput = document.getElementById('pass');
+    let errorMsg = document.getElementById('loginError');
+    let passValue = passInput.value;
+    if(!passValue) {
+        passInput.classList.add('error-border');
+        errorMsg.style.display = "block";
+        return;
+    }
+    auth.signInWithEmailAndPassword(email, passValue).then(() => {
+        const newToken = generateToken();
+        localStorage.setItem('admin_token', newToken);
+    }).catch(() => showToast("Wrong Password"));
+}
+
+function logout(e){
+    if(e) e.preventDefault();
+    localStorage.removeItem('admin_token');
+    auth.signOut().then(() => {
+        window.location.href = window.location.pathname; // Clear URL params on logout
     });
 }
 
-// Initial Security Check
-setInterval(checkSecurity, 5000);
+auth.onAuthStateChanged(user=>{
+    const currentDomain = window.location.hostname;
+    const isLocal = currentDomain === "localhost" || currentDomain === "127.0.0.1";
+    
+    // Domain Security & Network Check
+    if (!isLocal && currentDomain !== authorizedDomain) {
+        logout();
+        return;
+    }
+
+    if(user){
+        let token = localStorage.getItem('admin_token');
+        if(!token) {
+            token = generateToken();
+            localStorage.setItem('admin_token', token);
+        }
+        
+        document.getElementById('loginBox').classList.add('hidden');
+        document.getElementById('panelBox').classList.remove('hidden');
+        document.getElementById('tokenLabel').innerText = "Token: " + token;
+        updateLogoutLink(token);
+        handleUrlActions();
+        loadData();
+    } else {
+        document.getElementById('panelBox').classList.add('hidden');
+        document.getElementById('loginBox').classList.remove('hidden');
+    }
+});
+
+// Sync Check: Logout if network fails or DB becomes inaccessible
+db.ref('.info/connected').on('value', (snap) => {
+    if (snap.val() === false && auth.currentUser) {
+        console.log("Lost Connection - Auto Logout Safety Triggered");
+        // Opt: logout(); // Ahmad Bhai, agar aap chahen to isse uncomment kar den auto-logout ke liye
+    }
+});
+
+function add() {
+    let adInput = document.getElementById('admin_n');
+    let nInput = document.getElementById('n');
+    let iInput = document.getElementById('i');
+    let tInput = document.getElementById('trader_id');
+    let eInput = document.getElementById('e');
+    
+    if(adInput.value.trim() !== "" && iInput.value.trim() !== ""){
+        let perms = {
+            android: document.getElementById('t_android').checked,
+            pc: document.getElementById('t_pc').checked,
+            win: document.getElementById('t_win').checked,
+            lb: document.getElementById('t_lb').checked,
+            p: document.getElementById('t_p').checked,
+            t: document.getElementById('t_t').checked,
+            ana: document.getElementById('t_ana').checked
+        };
+
+        db.ref('users').push({
+            admin_note: adInput.value,
+            id: iInput.value.replace(/\s/g, ''),
+            name: nInput.value,
+            trader_id: tInput.value,
+            email: eInput.value,
+            date: new Date().toLocaleDateString(),
+            status: "active",
+            permissions: perms
+        }).then(()=>{
+            showToast("User Upgraded!");
+            adInput.value=""; nInput.value=""; iInput.value=""; tInput.value=""; eInput.value="";
+            document.getElementById('toggleBox').style.display = "none";
+        });
+    } else {
+        showToast("Admin Name & ID are required!");
+    }
+}
+
+function loadData(){
+    db.ref('users').on('value',s=>{
+        let h="";
+        s.forEach(c=>{
+            let v=c.val();
+            let searchKey = (v.admin_note || v.name).toLowerCase();
+            h+=`<div class="user-card" data-admin="${searchKey}">
+                <span>
+                    <b style="color:var(--blue); text-transform:uppercase; font-size:15px;">${v.admin_note || 'No Name'}</b><br>
+                    <b style="color:var(--text); font-size:12px;">${v.name}</b><br>
+                    <small style="opacity:0.7;">Device: ${v.id}</small><br>
+                    <small style="color:var(--accent);">Trader: ${v.trader_id || 'N/A'}</small>
+                </span>
+                <button class="del-btn" onclick="del('${c.key}', '${v.admin_note || v.name}')">
+                    <img src="delete.png" style="width:12px;"> Delete
+                </button>
+            </div>`;
+        });
+        document.getElementById('list').innerHTML = h || "<p style='text-align:center;opacity:0.5'>Empty List</p>";
+    });
+}
+
+function search(){
+    let v=document.getElementById('s').value.toLowerCase();
+    document.querySelectorAll('.user-card').forEach(u => {
+        let adminAttr = u.getAttribute('data-admin');
+        u.style.display = adminAttr.includes(v) ? "flex" : "none";
+    });
+}
+
+function del(k, name){
+    db.ref('users').child(k).remove().then(()=>showToast(name + " removed!", true));
+}
+
+window.onload = () => { applyTheme(localStorage.getItem('theme') || 'dark'); };
 </script>
 </body>
 </html>
