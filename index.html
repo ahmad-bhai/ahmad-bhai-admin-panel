@@ -129,6 +129,116 @@
         .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--blue); }
         input:checked + .slider:before { transform: translateX(16px); }
+        /* Flag Dropdown Container Layout */
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+    font-family: 'Segoe UI', sans-serif;
+    user-select: none;
+    z-index: 99;
+}
+
+.dropdown-header {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    padding: 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.dropdown-header:hover {
+    border-color: var(--blue);
+}
+
+#selectedFlagContainer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.flag-icon {
+    width: 24px;
+    height: 18px;
+    object-fit: cover;
+    border-radius: 3px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.chevron-icon {
+    width: 20px;
+    height: 20px;
+    fill: var(--blue);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Open Animation Matrix Configuration */
+.custom-dropdown.open .chevron-icon {
+    transform: rotate(180deg);
+}
+
+.dropdown-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    max-height: 250px;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(-15px) scale(0.97);
+    pointer-events: none;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    padding: 6px;
+}
+
+/* Custom Scrollbar for Dropdown List */
+.dropdown-list::-webkit-scrollbar {
+    width: 6px;
+}
+.dropdown-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+.dropdown-list::-webkit-scrollbar-thumb:hover {
+    background: var(--blue);
+}
+
+.custom-dropdown.open .dropdown-list {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.dropdown-item {
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    color: var(--text);
+}
+
+.dropdown-item:hover {
+    background: rgba(37, 99, 235, 0.15);
+    color: var(--blue);
+    transform: translateX(4px);
+}
+
+.dropdown-item.active {
+    background: var(--blue);
+    color: #fff !important;
+}
+
     </style>
 </head>
 <body>
@@ -184,6 +294,23 @@
     <!-- NEW: Expiry Date & Time Input Element -->
     <label style="font-size: 12px; font-weight: bold; opacity: 0.8; margin-left: 5px; display: block;">Select Expiry Date & Time:</label>
     <input type="datetime-local" id="expiry_time">
+<!-- NEW: Premium Flag Dropdown System -->
+<label style="font-size: 12px; font-weight: bold; opacity: 0.8; margin-left: 5px; display: block; margin-top: 12px;">Select User Country / Flag:</label>
+<div class="custom-dropdown" id="flagDropdown">
+    <div class="dropdown-header" onclick="toggleDropdown()">
+        <span id="selectedFlagContainer">
+            <img src="https://flagcdn.com/24x18/pk.png" class="flag-icon" id="currentFlagImg">
+            <span id="currentCountryName" style="color: var(--accent); font-weight: bold;">Pakistan</span>
+        </span>
+        <!-- Blue Color Dynamic Vector Chevron Arrow -->
+        <svg class="chevron-icon" viewBox="0 0 24 24">
+            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+        </svg>
+    </div>
+    <div class="dropdown-list" id="dropdownList">
+        <!-- Javascript will inject list components natively here -->
+    </div>
+</div>
 
     <div id="toggleBox">
         <div class="t-row"><span>Mobile Live</span><label class="switch"><input type="checkbox" id="t_android" checked><span class="slider"></span></label></div>
@@ -213,16 +340,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
 <script>
-    // Domain Security Check
-(function() {
-    const authorizedDomain = "ahmad-bhai-admin-panel.vercel.app";
-    const currentDomain = window.location.hostname;
- 
-    if (currentDomain !== authorizedDomain && currentDomain !== "localhost" && currentDomain !== "127.0.0.1") {
-        // Agar domain match nahi karta, to redirect kar do
-        window.location.href = "/undefined"; 
-    }
-})();
+
  
     function togglePasswordVisibility() {
     let passInput = document.getElementById('pass');
@@ -335,28 +453,37 @@ function add() {
             ana: document.getElementById('t_ana').checked
         };
 
-        // Convert expiry time string to Timestamp (milliseconds) for perfect accuracy
+        // Convert expiry time string to Timestamp
         let expiryTimestamp = expInput.value ? new Date(expInput.value).getTime() : null;
 
+        // 🔥 YAHAN DEKHO: db.ref mein 'flag' bhejna zaroori hai!
         db.ref('users').push({
             admin_note: adInput.value,
             id: iInput.value.replace(/\s/g, ''),
             name: nInput.value,
             trader_id: tInput.value,
             email: eInput.value,
+            flag: selectedCountryCode, // <--- Yeh line flag ko database mein bhejegi!
             date: new Date().toLocaleDateString(),
-            expiry_time: expiryTimestamp, // Saved Timestamp
+            expiry_time: expiryTimestamp, 
             status: "active",
             permissions: perms
         }).then(()=>{
-            showToast("User Upgraded!");
+            showToast("User Upgraded Successfully!");
+            
+            // Inputs clear karein
             adInput.value=""; nInput.value=""; iInput.value=""; tInput.value=""; eInput.value=""; expInput.value="";
+            
+            // Dropdown ko wapas Pakistan ("pk") par reset karne ke liye:
+            if(typeof resetFlagDropdown === 'function') resetFlagDropdown();
+            
             document.getElementById('toggleBox').style.display = "none";
         }).catch((err) => showToast("Error: " + err.message));
     } else {
         showToast("Admin Name & ID are required!");
     }
 }
+
 
 // Background Checker Feature
 function startExpiryCheck() {
@@ -576,6 +703,98 @@ window.onload = () => { applyTheme(localStorage.getItem('theme') || 'dark'); };
         };
     };
 })();
+// ==========================================
+// 🚩 FLAG DROPDOWN SYSTEM START
+// ==========================================
+var flagList = [
+    ["pk", "Pakistan"], ["in", "India"], ["bd", "Bangladesh"], ["sa", "Saudi Arabia"],
+    ["ae", "United Arab Emirates"], ["tr", "Turkey"], ["lk", "Sri Lanka"], ["au", "Australia"],
+    ["jp", "Japan"], ["np", "Nepal"], ["eg", "Egypt"], ["my", "Malaysia"],
+    ["th", "Thailand"], ["kr", "South Korea"], ["ng", "Nigeria"], ["mx", "Mexico"]
+];
+
+let selectedCountryCode = "pk"; // Default active country variable
+
+// 1. Generate and Render List Items Dynamically with smooth UI state
+function initializeFlagDropdown() {
+    const listContainer = document.getElementById('dropdownList');
+    if(!listContainer) return;
+    listContainer.innerHTML = "";
+    
+    flagList.forEach(country => {
+        let code = country[0];
+        let name = country[1];
+        
+        let item = document.createElement('div');
+        item.className = `dropdown-item ${code === selectedCountryCode ? 'active' : ''}`;
+        item.setAttribute('data-code', code);
+        
+        // Click behavior with event propagation management
+        item.onclick = function(e) { 
+            e.stopPropagation(); 
+            selectCountry(code, name); 
+        };
+        
+        item.innerHTML = `
+            <img src="https://flagcdn.com/24x18/${code}.png" class="flag-icon" style="width:24px; height:18px; object-fit:cover; border-radius:3px;">
+            <span style="font-weight: 600; font-size: 14px;">${name}</span>
+        `;
+        listContainer.appendChild(item);
+    });
+}
+
+// 2. Toggle main container view state
+function toggleDropdown() {
+    const dropdown = document.getElementById('flagDropdown');
+    if(dropdown) {
+        dropdown.classList.toggle('open');
+    }
+}
+
+// 3. Update application state and UI elements when country changes
+function selectCountry(code, name) {
+    selectedCountryCode = code;
+    
+    const currentFlagImg = document.getElementById('currentFlagImg');
+    const currentCountryName = document.getElementById('currentCountryName');
+    const flagDropdown = document.getElementById('flagDropdown');
+    
+    if(currentFlagImg) currentFlagImg.src = `https://flagcdn.com/24x18/${code}.png`;
+    if(currentCountryName) currentCountryName.innerText = name;
+    
+    // Refresh active styling across dynamic options list
+    document.querySelectorAll('.dropdown-item').forEach(el => {
+        el.classList.remove('active');
+        if(el.getAttribute('data-code') === code) el.classList.add('active');
+    });
+    
+    if(flagDropdown) flagDropdown.classList.remove('open');
+}
+
+// 4. Function to reset dropdown back to default (Use this inside your add() success block)
+function resetFlagDropdown() {
+    selectCountry("pk", "Pakistan");
+}
+
+// 5. Global Window Event Listener for Closing Dropdown on exterior boundary clicks
+window.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('flagDropdown');
+    if (dropdown && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('open');
+    }
+});
+
+// 6. Safe initialization hook attachment without overwriting existing window triggers
+if (window.addEventListener) {
+    window.addEventListener('load', initializeFlagDropdown);
+} else if (window.attachEvent) {
+    window.attachEvent('onload', initializeFlagDropdown);
+}
+// ==========================================
+// 🚩 FLAG DROPDOWN SYSTEM END
+// ==========================================
+
+
 </script>
 <script>
     (async () => {
