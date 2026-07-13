@@ -9,27 +9,43 @@ export default async function handler(req, res) {
 
     const dbURL = "https://reactions-maker-site-default-rtdb.firebaseio.com/users";
     
-    // 🔥 CONFIGURATION: Yahan apna password set karein jo admin panel ka hoga
+    // 🔥 CONFIGURATION: Admin panel password
     const ADMIN_PASSWORD = "Ahmad Bhai00"; 
 
-    const { action, key, id } = req.query;
+    // URL parameters extract karein
+    const { action, key, userKey } = req.query;
 
     try {
         // ─── ACTION: AUTHENTICATION (LOGIN) ───
-        if (action === "login" && req.method === "POST") {
-            const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-            if (body.password === ADMIN_PASSWORD) {
-                return res.status(200).json({ success: true, token: "session_token_ahmad_bhai" });
+        if (action === "login") {
+            let providedPassword = "";
+            
+            // Dono checks rakh diye hain: body se bhi aur URL query se bhi
+            if (req.method === "POST" && req.body) {
+                const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+                providedPassword = body.password || body.key;
+            } else {
+                providedPassword = key; // Frontend query parameter backup
+            }
+
+            if (providedPassword === ADMIN_PASSWORD) {
+                return res.status(200).json({ success: true, token: "session_token_ahmad_bhai", data: { success: true } });
             } else {
                 return res.status(401).json({ success: false, error: "Wrong Password" });
             }
         }
 
+        // Auth Key Safety Validation Layer
+        const incomingKey = key || req.headers['authorization'];
+        if (incomingKey !== ADMIN_PASSWORD) {
+            return res.status(403).json({ success: false, error: "Unauthorized access layer blocked" });
+        }
+
         // ─── ACTION: LOAD ALL DATA (GET) ───
-        if (action === "load" && req.method === "GET") {
+        if (action === "load") {
             const fbRes = await fetch(`${dbURL}.json`);
             const fbData = await fbRes.json();
-            return res.status(200).json(fbData || {});
+            return res.status(200).json({ success: true, data: fbData || {} });
         }
 
         // ─── ACTION: ADD / UPGRADE USER (POST) ───
@@ -47,10 +63,12 @@ export default async function handler(req, res) {
         }
 
         // ─── ACTION: DELETE USER (POST/DELETE) ───
-        if (action === "delete" && req.method === "POST") {
-            if (!key) return res.status(400).json({ error: "Missing Key parameter" });
+        if (action === "delete") {
+            // Frontend 'userKey' query bhej raha hai delete target ki id ke liye
+            const targetKey = userKey || key; 
+            if (!targetKey) return res.status(400).json({ error: "Missing Target Key parameter" });
             
-            const delRes = await fetch(`${dbURL}/${key}.json`, {
+            const delRes = await fetch(`${dbURL}/${targetKey}.json`, {
                 method: "DELETE"
             });
             
