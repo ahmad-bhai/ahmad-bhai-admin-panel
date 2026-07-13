@@ -335,35 +335,20 @@
     <div id="list" style="max-height:300px; overflow-y:auto; margin-top:10px;"></div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-
+<!-- ─── CHANGE TO THIS NEW API SCRIPT ────────────────────────────────── -->
 <script>
+// ─── ADMIN PANEL API CONFIGURATION ───────────────────────────────────
+const adminAPIUrl = "https://ahmad-bhai-admin-panel.vercel.app/a"; 
 
- 
-    function togglePasswordVisibility() {
+function togglePasswordVisibility() {
     let passInput = document.getElementById('pass');
     let checkbox = document.getElementById('togglePassCheckbox');
-    
-    // Agar checkbox checked hai to password text ban jaye (show ho jaye)
     if (checkbox.checked) {
         passInput.type = "text";
     } else {
         passInput.type = "password";
     }
 }
-
-
-const firebaseConfig = { 
-    apiKey:"AIzaSyDS3Vc-QJScL5UnpHAd3ZV-Sk-57plSjKI",
-    authDomain:"reactions-maker-site.firebaseapp.com",
-    projectId:"reactions-maker-site",
-    databaseURL:"https://reactions-maker-site-default-rtdb.firebaseio.com"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const auth = firebase.auth();
 
 function showToggles() {
     let ad = document.getElementById('admin_n').value.trim();
@@ -396,8 +381,8 @@ function showToast(m, showIcon = false){
     setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-function login(){
-    let email="nasiriq703@gmail.com"; 
+// ─── NEW BACKEND API ROUTINES ───────────────────────────────────────
+async function login(){
     let passInput = document.getElementById('pass');
     let errorMsg = document.getElementById('loginError');
     let passValue = passInput.value;
@@ -406,7 +391,22 @@ function login(){
         errorMsg.style.display = "block";
         return;
     }
-    auth.signInWithEmailAndPassword(email, passValue).catch(() => showToast("Wrong Password"));
+    
+    try {
+        let res = await fetch(`${adminAPIUrl}?action=login&key=${encodeURIComponent(passValue)}`);
+        let data = await res.json();
+        
+        if(data.success) {
+            localStorage.setItem('admin_session_pass', passValue);
+            document.getElementById('loginBox').classList.add('hidden');
+            document.getElementById('panelBox').classList.remove('hidden');
+            loadData();
+        } else {
+            showToast("Wrong Password");
+        }
+    } catch(e) {
+        showToast("Server Connection Error");
+    }
 }
 
 function resetError() {
@@ -417,24 +417,58 @@ function resetError() {
 }
 
 function logout(){
-    auth.signOut().then(() => showToast("Logged Out"));
+    localStorage.removeItem('admin_session_pass');
+    document.getElementById('panelBox').classList.add('hidden');
+    document.getElementById('loginBox').classList.remove('hidden');
+    resetError();
+    showToast("Logged Out");
 }
 
-auth.onAuthStateChanged(user=>{
-    if(user){
-        document.getElementById('loginBox').classList.add('hidden');
-        document.getElementById('panelBox').classList.remove('hidden');
-        loadData();
-        // Start checking for expired users as soon as admin logs in
-        startExpiryCheck();
-    } else {
-        document.getElementById('panelBox').classList.add('hidden');
-        document.getElementById('loginBox').classList.remove('hidden');
-        resetError();
-    }
-});
+async function loadData(){
+    let savedPass = localStorage.getItem('admin_session_pass');
+    if(!savedPass) return checkAuthState();
 
-function add() {
+    try {
+        let res = await fetch(`${adminAPIUrl}?action=load&key=${encodeURIComponent(savedPass)}`);
+        let data = await res.json();
+        
+        if(!data.success) {
+            logout();
+            return;
+        }
+
+        let h = "";
+        // Backend se data object format me milta hai
+        let users = data.data || {};
+        
+        Object.keys(users).forEach(key => {
+            let v = users[key];
+            let searchKey = (v.admin_note || v.name).toLowerCase();
+            let expiryDisplay = v.expiry_time ? new Date(v.expiry_time).toLocaleString() : "Never";
+
+            h += `<div class="user-card" data-admin="${searchKey}">
+                <span>
+                    <b style="color:var(--blue); text-transform:uppercase; font-size:15px;">${v.admin_note || 'No Name'}</b><br>
+                    <b style="color:var(--text); font-size:12px;">${v.name}</b><br>
+                    <small style="opacity:0.7;">Device: ${v.id}</small><br>
+                    <small style="color:var(--accent);">Trader: ${v.trader_id || 'N/A'}</small><br>
+                    <small style="color:var(--red); font-weight:bold;">Expires: ${expiryDisplay}</small>
+                </span>
+                <button class="del-btn" onclick="del('${key}', '${v.admin_note || v.name}')">
+                    <img src="delete.png" style="width:12px;"> Delete
+                </button>
+            </div>`;
+        });
+        document.getElementById('list').innerHTML = h || "<p style='text-align:center;opacity:0.5'>Empty List</p>";
+    } catch(e) {
+        console.error(e);
+    }
+}
+
+async function add() {
+    let savedPass = localStorage.getItem('admin_session_pass');
+    if(!savedPass) return logout();
+
     let adInput = document.getElementById('admin_n');
     let nInput = document.getElementById('n');
     let iInput = document.getElementById('i');
@@ -453,85 +487,62 @@ function add() {
             ana: document.getElementById('t_ana').checked
         };
 
-        // Convert expiry time string to Timestamp
         let expiryTimestamp = expInput.value ? new Date(expInput.value).getTime() : null;
 
-        // 🔥 YAHAN DEKHO: db.ref mein 'flag' bhejna zaroori hai!
-        db.ref('users').push({
+        let userData = {
             admin_note: adInput.value,
             id: iInput.value.replace(/\s/g, ''),
             name: nInput.value,
             trader_id: tInput.value,
             email: eInput.value,
-            flag: selectedCountryCode, // <--- Yeh line flag ko database mein bhejegi!
+            flag: selectedCountryCode,
             date: new Date().toLocaleDateString(),
             expiry_time: expiryTimestamp, 
             status: "active",
             permissions: perms
-        }).then(()=>{
-            showToast("User Upgraded Successfully!");
-            
-            // Inputs clear karein
-            adInput.value=""; nInput.value=""; iInput.value=""; tInput.value=""; eInput.value=""; expInput.value="";
-            
-            // Dropdown ko wapas Pakistan ("pk") par reset karne ke liye:
-            if(typeof resetFlagDropdown === 'function') resetFlagDropdown();
-            
-            document.getElementById('toggleBox').style.display = "none";
-        }).catch((err) => showToast("Error: " + err.message));
+        };
+
+        try {
+            let res = await fetch(`${adminAPIUrl}?action=add&key=${encodeURIComponent(savedPass)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+            let result = await res.json();
+
+            if(result.success) {
+                showToast("User Upgraded Successfully!");
+                adInput.value=""; nInput.value=""; iInput.value=""; tInput.value=""; eInput.value=""; expInput.value="";
+                if(typeof resetFlagDropdown === 'function') resetFlagDropdown();
+                document.getElementById('toggleBox').style.display = "none";
+                loadData(); // List refresh karein
+            } else {
+                showToast("Failed to upgrade: " + result.message);
+            }
+        } catch(err) {
+            showToast("Error processing request");
+        }
     } else {
         showToast("Admin Name & ID are required!");
     }
 }
 
+async function del(k, name){
+    let savedPass = localStorage.getItem('admin_session_pass');
+    if(!savedPass) return logout();
 
-// Background Checker Feature
-function startExpiryCheck() {
-    // Run real-time check every 30 seconds
-    setInterval(() => {
-        let currentTime = new Date().getTime();
-        db.ref('users').once('value', snapshot => {
-            snapshot.forEach(childSnapshot => {
-                let user = childSnapshot.val();
-                if(user.expiry_time && currentTime >= user.expiry_time) {
-                    // Delete the user from database automatically when current time passes expiry time
-                    db.ref('users').child(childSnapshot.key).remove().then(() => {
-                        console.log(`Auto-Removed Expired User: ${user.admin_note || user.name}`);
-                    });
-                }
-            });
-        });
-    }, 30000); 
-}
-
-function loadData(){
-    db.ref('users').on('value',s=>{
-        let h="";
-        s.forEach(c=>{
-            let v=c.val();
-            let searchKey = (v.admin_note || v.name).toLowerCase();
-            
-            // Format expiry details to view on the card list
-            let expiryDisplay = "Never";
-            if (v.expiry_time) {
-                expiryDisplay = new Date(v.expiry_time).toLocaleString();
-            }
-
-            h+=`<div class="user-card" data-admin="${searchKey}">
-                <span>
-                    <b style="color:var(--blue); text-transform:uppercase; font-size:15px;">${v.admin_note || 'No Name'}</b><br>
-                    <b style="color:var(--text); font-size:12px;">${v.name}</b><br>
-                    <small style="opacity:0.7;">Device: ${v.id}</small><br>
-                    <small style="color:var(--accent);">Trader: ${v.trader_id || 'N/A'}</small><br>
-                    <small style="color:var(--red); font-weight:bold;">Expires: ${expiryDisplay}</small>
-                </span>
-                <button class="del-btn" onclick="del('${c.key}', '${v.admin_note || v.name}')">
-                    <img src="delete.png" style="width:12px;"> Delete
-                </button>
-            </div>`;
-        });
-        document.getElementById('list').innerHTML = h || "<p style='text-align:center;opacity:0.5'>Empty List</p>";
-    });
+    try {
+        let res = await fetch(`${adminAPIUrl}?action=delete&key=${encodeURIComponent(savedPass)}&userKey=${k}`);
+        let result = await res.json();
+        if(result.success) {
+            showToast(name + " removed!", true);
+            loadData(); // List refresh karein
+        } else {
+            showToast("Delete failed!");
+        }
+    } catch(e) {
+        showToast("Network Error");
+    }
 }
 
 function search(){
@@ -542,12 +553,27 @@ function search(){
     });
 }
 
-function del(k, name){
-    db.ref('users').child(k).remove().then(()=>showToast(name + " removed!", true));
+function checkAuthState() {
+    let savedPass = localStorage.getItem('admin_session_pass');
+    if(savedPass) {
+        document.getElementById('loginBox').classList.add('hidden');
+        document.getElementById('panelBox').classList.remove('hidden');
+        loadData();
+    } else {
+        document.getElementById('panelBox').classList.add('hidden');
+        document.getElementById('loginBox').classList.remove('hidden');
+        resetError();
+    }
 }
 
-window.onload = () => { applyTheme(localStorage.getItem('theme') || 'dark'); };
+// Auto Refresh state check on page load
+window.onload = () => { 
+    applyTheme(localStorage.getItem('theme') || 'dark'); 
+    checkAuthState();
+};
 </script>
+<!-- ─── END OF NEW API SCRIPT ───────────────────────────────────────── -->
+
 </body>
 <script>(function() {
     const pKey = "AhmadBhai_Ultimate_v10";
