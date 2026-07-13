@@ -1,3 +1,8 @@
+// Har nayi API ke shuru mein yeh check lazmi rakhein
+if (key !== ADMIN_PASSWORD) {
+    return res.status(403).json({ success: false, error: "Unauthorized access layer blocked" });
+}
+
 // api/admin-core.js (Secure Logic)
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
