@@ -1,9 +1,4 @@
-// Har nayi API ke shuru mein yeh check lazmi rakhein
-if (key !== ADMIN_PASSWORD) {
-    return res.status(403).json({ success: false, error: "Unauthorized access layer blocked" });
-}
-
-// api/admin-core.js (Secure Logic)
+// api/admin-core.js (Secure Logic with Token Support)
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
@@ -13,25 +8,31 @@ export default async function handler(req, res) {
 
     const dbURL = "https://reactions-maker-site-default-rtdb.firebaseio.com/users";
     const ADMIN_PASSWORD = "Ahmad Bhai00"; 
+    const AUTH_TOKEN = "session_token_ahmad_bhai"; // Jo login par return hota hai
 
+    // Query aur Headers dono se auth details check karenge
     const { action, key, userKey } = req.query;
+    
+    // Check karenge ki kya request ke sath valid password ya valid token aaya hai
+    const incomingToken = req.headers['authorization'] || req.headers['token'] || req.query.token;
+    const isAuthenticated = (key === ADMIN_PASSWORD) || (incomingToken === AUTH_TOKEN);
 
     try {
-        // 1. LOGIN ACTION (Bina password ke allowed hai, kyunki check isi ke andar hota hai)
+        // 1. LOGIN ACTION (Bina password/token ke allowed hai)
         if (action === "login") {
             let providedPassword = (req.method === "POST" && req.body) ? (req.body.password || req.body.key) : key;
             if (providedPassword === ADMIN_PASSWORD) {
-                return res.status(200).json({ success: true, token: "session_token_ahmad_bhai", data: { success: true } });
+                return res.status(200).json({ success: true, token: AUTH_TOKEN, data: { success: true } });
             }
             return res.status(401).json({ success: false, error: "Wrong Password" });
         }
 
-        // 🔥 GLOBAL SECURITY GUARD: Login ke ilawa baki kisi bhi action (load, add, delete) ke liye password check hoga!
-        if (key !== ADMIN_PASSWORD) {
+        // 🔥 GLOBAL SECURITY GUARD: Login ke ilawa password YA valid token hona zaroori hai!
+        if (!isAuthenticated) {
             return res.status(403).json({ success: false, error: "Unauthorized access layer blocked" });
         }
 
-        // 2. LOAD ACTION (Ab yeh secure hai)
+        // 2. LOAD ACTION
         if (action === "load") {
             const fbRes = await fetch(`${dbURL}.json`);
             const fbData = await fbRes.json();
