@@ -290,7 +290,9 @@
     <input type="text" id="i" placeholder="20-Digit Device ID" maxlength="20" oninput="showToggles()">
     <input type="text" id="trader_id" placeholder="User Trader ID (Quotex)" maxlength="8">
     <input type="email" id="e" placeholder="User Email">
-    
+<!-- 🆕 LOGO URL INPUT BOX -->
+<input type="text" id="logo_url" placeholder="User Logo URL (e.g., Imgur Link)">
+
     <!-- NEW: Expiry Date & Time Input Element -->
     <label style="font-size: 12px; font-weight: bold; opacity: 0.8; margin-left: 5px; display: block;">Select Expiry Date & Time:</label>
     <input type="datetime-local" id="expiry_time">
@@ -441,24 +443,42 @@ async function loadData(){
         // Backend se data object format me milta hai
         let users = data.data || {};
         
-        Object.keys(users).forEach(key => {
-            let v = users[key];
-            let searchKey = (v.admin_note || v.name).toLowerCase();
-            let expiryDisplay = v.expiry_time ? new Date(v.expiry_time).toLocaleString() : "Never";
+// Replace the Object.keys(users).forEach loop block inside loadData() with this:
+Object.keys(users).forEach(key => {
+    let v = users[key];
+    let searchKey = (v.admin_note || v.name).toLowerCase();
+    let expiryDisplay = v.expiry_time ? new Date(v.expiry_time).toLocaleString() : "Never";
 
-            h += `<div class="user-card" data-admin="${searchKey}">
-                <span>
-                    <b style="color:var(--blue); text-transform:uppercase; font-size:15px;">${v.admin_note || 'No Name'}</b><br>
-                    <b style="color:var(--text); font-size:12px;">${v.name}</b><br>
-                    <small style="opacity:0.7;">Device: ${v.id}</small><br>
-                    <small style="color:var(--accent);">Trader: ${v.trader_id || 'N/A'}</small><br>
-                    <small style="color:var(--red); font-weight:bold;">Expires: ${expiryDisplay}</small>
-                </span>
-                <button class="del-btn" onclick="del('${key}', '${v.admin_note || v.name}')">
-                    <img src="delete.png" style="width:12px;"> Delete
-                </button>
-            </div>`;
-        });
+    // 🚩 Country configurations mapping
+    let flagToken = v.flag || "pk"; 
+    let matchedCountryPair = flagList.find(c => c[0] === flagToken);
+    let countryTitle = matchedCountryPair ? matchedCountryPair[1] : "Global Region";
+
+    // 🆕 Custom Logo verification fallback logic
+    let userLogoSrc = (v.logo && v.logo.trim() !== "") ? v.logo : "logo.png";
+
+    h += `<div class="user-card" data-admin="${searchKey}">
+        <span style="display: flex; align-items: center; gap: 12px; width: 100%;">
+            <!-- 🆕 Left Side Circular Profile Dynamic User Logo -->
+            <img src="${userLogoSrc}" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--blue); flex-shrink: 0;">
+            
+            <div style="flex-grow: 1;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                    <img src="https://flagcdn.com/24x18/${flagToken}.png" class="flag-icon" style="width:18px; height:13px;" title="${countryTitle}">
+                    <b style="color:var(--blue); text-transform:uppercase; font-size:14px;">${v.admin_note || 'No Name'}</b>
+                </div>
+                <b style="color:var(--text); font-size:12px;">${v.name}</b><br>
+                <small style="opacity:0.7; font-size:11px;">Device: ${v.id}</small><br>
+                <small style="color:var(--accent); font-size:11px;">Trader: ${v.trader_id || 'N/A'}</small><br>
+                <small style="color:var(--red); font-weight:bold; font-size:11px;">Expires: ${expiryDisplay}</small>
+            </div>
+        </span>
+        <button class="del-btn" onclick="del('${key}', '${v.admin_note || v.name}')" style="flex-shrink: 0; margin-left: 10px;">
+            <img src="delete.png" style="width:12px;"> Delete
+        </button>
+    </div>`;
+});
+
         document.getElementById('list').innerHTML = h || "<p style='text-align:center;opacity:0.5'>Empty List</p>";
     } catch(e) {
         console.error(e);
@@ -474,6 +494,7 @@ async function add() {
     let iInput = document.getElementById('i');
     let tInput = document.getElementById('trader_id');
     let eInput = document.getElementById('e');
+    let logoInput = document.getElementById('logo_url'); // 🆕 Fetch Logo Input
     let expInput = document.getElementById('expiry_time');
     
     if(adInput.value.trim() !== "" && iInput.value.trim() !== ""){
@@ -495,6 +516,7 @@ async function add() {
             name: nInput.value,
             trader_id: tInput.value,
             email: eInput.value,
+            logo: logoInput.value.trim() || "", // 🆕 Saves Target Logo URL String directly to Firebase
             flag: selectedCountryCode,
             date: new Date().toLocaleDateString(),
             expiry_time: expiryTimestamp, 
@@ -512,10 +534,11 @@ async function add() {
 
             if(result.success) {
                 showToast("User Upgraded Successfully!");
-                adInput.value=""; nInput.value=""; iInput.value=""; tInput.value=""; eInput.value=""; expInput.value="";
+                // Clear all input text nodes including logo field
+                adInput.value=""; nInput.value=""; iInput.value=""; tInput.value=""; eInput.value=""; logoInput.value=""; expInput.value="";
                 if(typeof resetFlagDropdown === 'function') resetFlagDropdown();
                 document.getElementById('toggleBox').style.display = "none";
-                loadData(); // List refresh karein
+                loadData(); 
             } else {
                 showToast("Failed to upgrade: " + result.message);
             }
@@ -526,6 +549,7 @@ async function add() {
         showToast("Admin Name & ID are required!");
     }
 }
+
 
 async function del(k, name){
     let savedPass = localStorage.getItem('admin_session_pass');
