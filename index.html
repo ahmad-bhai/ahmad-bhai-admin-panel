@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN PANEL | AHMAD BHAI</title>
-    <link rel="icon" href="logo.png" type="image/png" />
+    <title>ADMIN PANEL | MAGIC SCRIPTS</title>
+    <link rel="icon" href="MS.png" type="image/png" />
 
     <style>
         :root { 
@@ -251,7 +251,7 @@
 <div id="loginBox" class="box hidden">
     <div class="header-section">
         <img src="sun.png" id="themeIconLogin" class="theme-toggle" onclick="toggleTheme()">
-        <img src="logo.png" class="logo-img">
+        <img src="MS.png" class="logo-img">
     </div>
     <h2 style="text-align:center; margin:0; margin-bottom: 10px;">Admin Panel Login</h2>
     
@@ -281,8 +281,8 @@
     
     <div class="header-section">
         <img src="sun.png" id="themeIconPanel" class="theme-toggle" onclick="toggleTheme()">
-        <img src="logo.png" class="logo-img">
-        <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Ahmad Bhai Admin Panel</h3>
+        <img src="MS.png" class="logo-img">
+        <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Magic Scripts Admin Panel</h3>
     </div>
 
     <input type="text" id="admin_n" placeholder="Admin Side User Name" style="border-color: var(--blue);" oninput="showToggles()">
@@ -455,7 +455,7 @@ Object.keys(users).forEach(key => {
     let countryTitle = matchedCountryPair ? matchedCountryPair[1] : "Global Region";
 
     // 🆕 Custom Logo verification fallback logic
-    let userLogoSrc = (v.logo && v.logo.trim() !== "") ? v.logo : "logo.png";
+    let userLogoSrc = (v.logo && v.logo.trim() !== "") ? v.logo : "MS.png";
 
     h += `<div class="user-card" data-admin="${searchKey}">
         <span style="display: flex; align-items: center; gap: 12px; width: 100%;">
