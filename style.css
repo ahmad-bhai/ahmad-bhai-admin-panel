@@ -1,0 +1,231 @@
+        :root { 
+            --accent:#22c55e; --blue:#2563eb; --red:#ef4444; 
+            --bg:#020617; --card:#0f172a; --text:#ffffff; --border:#1e293b; --input-bg:#020617;
+        }
+        body.light-mode { 
+            --bg:#f1f5f9; --card:#ffffff; --text:#000000; --border:#cbd5e1; --input-bg:#f8fafc;
+        }
+        body { background:var(--bg); color:var(--text); font-family:'Segoe UI',sans-serif; display:flex; justify-content:center; padding:20px; transition:0.3s;}
+        
+        .box { background:var(--card); padding:30px; border-radius:30px; width:450px; border:1px solid var(--border); box-shadow:0 20px 40px rgba(0,0,0,0.2); position:relative;}
+        
+        .header-section { position:relative; text-align:center; margin-bottom:25px; padding-top:10px;}
+        .logo-img { width:100px; height:100px; border-radius:50%; animation:zoomInOut 4s infinite; border:3px solid var(--blue);}
+        @keyframes zoomInOut {0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+        
+        .theme-toggle { position:absolute; top:0; right:0; cursor:pointer; width:30px; height:30px; transition: 0.3s; z-index: 15;}
+        
+        .input-group { margin: 8px 0; position: relative; }
+    /* Password Group & Eye Icon Styling */
+/* Custom Password container to keep elements together */
+.password-container {
+    position: relative;
+    width: 100%;
+    display: block; /* Flex container ke side-effects hatane ke liye */
+}
+
+.password-container input {
+    padding-right: 45px !important; /* Right side se text eye icon par na charhe */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Updated Eye Icon Container - Fixed Position Inside Box */
+.password-container .container {
+    --color: #3b82f6; 
+    --size: 18px;
+    position: absolute;
+    right: 15px;      /* Box ke andar alignment */
+    top: 50%;         /* Vertical placement midpoint */
+    transform: translateY(-70%); /* Perfectly center push */
+    cursor: pointer;
+    user-select: none;
+    fill: var(--color);
+    z-index: 10;
+    width: var(--size);
+    height: var(--size);
+    display: inline-block; /* Flex overlap se bachane ke liye */
+}
+
+
+.password-container .container .eye {
+    position: absolute;
+    animation: keyframes-fill .5s;
+}
+
+.password-container .container .eye-slash {
+    position: absolute;
+    animation: keyframes-fill .5s;
+    display: none;
+}
+
+/* On check event */
+.password-container .container input:checked ~ .eye {
+    display: none;
+}
+.password-container .container input:checked ~ .eye-slash {
+    display: block;
+}
+
+/* Hide default checkbox */
+.password-container .container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+    margin: 0;
+    padding: 0;
+}
+
+@keyframes keyframes-fill {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+}
+
+        input, select { width:100%; padding:14px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--accent); font-weight: bold; outline: none; box-sizing: border-box; transition: 0.3s; margin-bottom: 10px;}
+        input::placeholder { color: #555; font-weight: normal; }
+        
+        input.error-border { border-color: var(--red) !important; }
+        .error-msg { color: var(--red); font-size: 12px; margin-top: -5px; margin-bottom: 10px; display: none; font-weight: 500; }
+
+
+        .btn { display: flex; align-items: center; justify-content: center; gap: 10px; background:var(--blue); color:white; border:none; width:100%; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold; margin-top:12px;}
+
+        .logout-btn { position:absolute; top:15px; left:15px; background:var(--red); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:bold; display: flex; align-items: center; gap: 5px; z-index: 10;}
+        
+        .search-container { position: relative; margin-top:20px;}
+        .search-container input { padding-left: 45px; border-color: var(--blue); }
+        .search-main-icon { position: absolute; left: 15px; top: 42%; transform: translateY(-50%); width: 20px; height: 20px; }
+
+        .user-card { background:rgba(120,120,120,0.1); padding:15px; border-radius:15px; margin-top:12px; display:flex; justify-content:space-between; align-items:center; border-left:5px solid var(--blue);}
+        .del-btn { background:var(--red); border:none; color:white; padding:8px 12px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:bold; display: flex; align-items: center; gap: 5px;}
+
+        #toast { 
+            visibility:hidden; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); 
+            background:var(--blue); color:white; padding:12px 25px; border-radius:50px; 
+            font-weight:bold; z-index:100; display: flex; align-items: center; gap: 10px;
+        }
+        #toast.show { visibility:visible; animation: pop 0.3s ease; }
+        @keyframes pop { from {bottom: 0; opacity:0;} to {bottom: 30px; opacity:1;} }
+        
+        .hidden { display:none !important; }
+
+        /* Toggles Styling */
+        #toggleBox { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border); display: none; }
+        .t-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; }
+        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--blue); }
+        input:checked + .slider:before { transform: translateX(16px); }
+        /* Flag Dropdown Container Layout */
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+    font-family: 'Segoe UI', sans-serif;
+    user-select: none;
+    z-index: 99;
+}
+
+.dropdown-header {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    padding: 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.dropdown-header:hover {
+    border-color: var(--blue);
+}
+
+#selectedFlagContainer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.flag-icon {
+    width: 24px;
+    height: 18px;
+    object-fit: cover;
+    border-radius: 3px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.chevron-icon {
+    width: 20px;
+    height: 20px;
+    fill: var(--blue);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Open Animation Matrix Configuration */
+.custom-dropdown.open .chevron-icon {
+    transform: rotate(180deg);
+}
+
+.dropdown-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    max-height: 250px;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(-15px) scale(0.97);
+    pointer-events: none;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    padding: 6px;
+}
+
+/* Custom Scrollbar for Dropdown List */
+.dropdown-list::-webkit-scrollbar {
+    width: 6px;
+}
+.dropdown-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+.dropdown-list::-webkit-scrollbar-thumb:hover {
+    background: var(--blue);
+}
+
+.custom-dropdown.open .dropdown-list {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.dropdown-item {
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    color: var(--text);
+}
+
+.dropdown-item:hover {
+    background: rgba(37, 99, 235, 0.15);
+    color: var(--blue);
+    transform: translateX(4px);
+}
+
+.dropdown-item.active {
+    background: var(--blue);
+    color: #fff !important;
+}
