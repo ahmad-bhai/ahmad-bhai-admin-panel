@@ -25,73 +25,79 @@
         .theme-toggle { position:absolute; top:0; right:0; cursor:pointer; width:30px; height:30px; transition: 0.3s; z-index: 15;}
         
         .input-group { margin: 8px 0; position: relative; }
+    /* Password Group & Eye Icon Styling */
+/* Custom Password container to keep elements together */
+.password-container {
+    position: relative;
+    width: 100%;
+    display: block; /* Flex container ke side-effects hatane ke liye */
+}
 
-        .password-container {
-            position: relative;
-            width: 100%;
-            display: block; 
-        }
+.password-container input {
+    padding-right: 45px !important; /* Right side se text eye icon par na charhe */
+    width: 100%;
+    box-sizing: border-box;
+}
 
-        .password-container input {
-            padding-right: 45px !important; 
-            width: 100%;
-            box-sizing: border-box;
-        }
+/* Updated Eye Icon Container - Fixed Position Inside Box */
+.password-container .container {
+    --color: #3b82f6; 
+    --size: 18px;
+    position: absolute;
+    right: 15px;      /* Box ke andar alignment */
+    top: 50%;         /* Vertical placement midpoint */
+    transform: translateY(-70%); /* Perfectly center push */
+    cursor: pointer;
+    user-select: none;
+    fill: var(--color);
+    z-index: 10;
+    width: var(--size);
+    height: var(--size);
+    display: inline-block; /* Flex overlap se bachane ke liye */
+}
 
-        .password-container .container {
-            --color: #3b82f6; 
-            --size: 18px;
-            position: absolute;
-            right: 15px;      
-            top: 50%;         
-            transform: translateY(-70%); 
-            cursor: pointer;
-            user-select: none;
-            fill: var(--color);
-            z-index: 10;
-            width: var(--size);
-            height: var(--size);
-            display: inline-block; 
-        }
 
-        .password-container .container .eye {
-            position: absolute;
-            animation: keyframes-fill .5s;
-        }
+.password-container .container .eye {
+    position: absolute;
+    animation: keyframes-fill .5s;
+}
 
-        .password-container .container .eye-slash {
-            position: absolute;
-            animation: keyframes-fill .5s;
-            display: none;
-        }
+.password-container .container .eye-slash {
+    position: absolute;
+    animation: keyframes-fill .5s;
+    display: none;
+}
 
-        .password-container .container input:checked ~ .eye {
-            display: none;
-        }
-        .password-container .container input:checked ~ .eye-slash {
-            display: block;
-        }
+/* On check event */
+.password-container .container input:checked ~ .eye {
+    display: none;
+}
+.password-container .container input:checked ~ .eye-slash {
+    display: block;
+}
 
-        .password-container .container input {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            height: 0;
-            width: 0;
-            margin: 0;
-            padding: 0;
-        }
+/* Hide default checkbox */
+.password-container .container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+    margin: 0;
+    padding: 0;
+}
 
-        @keyframes keyframes-fill {
-            0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.2); }
-        }
+@keyframes keyframes-fill {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+}
 
         input, select { width:100%; padding:14px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--accent); font-weight: bold; outline: none; box-sizing: border-box; transition: 0.3s; margin-bottom: 10px;}
         input::placeholder { color: #555; font-weight: normal; }
         
         input.error-border { border-color: var(--red) !important; }
         .error-msg { color: var(--red); font-size: 12px; margin-top: -5px; margin-bottom: 10px; display: none; font-weight: 500; }
+
 
         .btn { display: flex; align-items: center; justify-content: center; gap: 10px; background:var(--blue); color:white; border:none; width:100%; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold; margin-top:12px;}
 
@@ -114,6 +120,7 @@
         
         .hidden { display:none !important; }
 
+        /* Toggles Styling */
         #toggleBox { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border); display: none; }
         .t-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; }
         .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
@@ -122,93 +129,190 @@
         .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--blue); }
         input:checked + .slider:before { transform: translateX(16px); }
+        /* Flag Dropdown Container Layout */
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+    font-family: 'Segoe UI', sans-serif;
+    user-select: none;
+    z-index: 99;
+}
 
-        .custom-dropdown { position: relative; width: 100%; margin-bottom: 15px; font-family: 'Segoe UI', sans-serif; user-select: none; z-index: 99; }
-        .dropdown-header { background: var(--input-bg); border: 1px solid var(--border); padding: 14px; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; }
-        .dropdown-header:hover { border-color: var(--blue); }
-        #selectedFlagContainer { display: flex; align-items: center; gap: 12px; }
-        .flag-icon { width: 24px; height: 18px; object-fit: cover; border-radius: 3px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .chevron-icon { width: 20px; height: 20px; fill: var(--blue); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .custom-dropdown.open .chevron-icon { transform: rotate(180deg); }
-        .dropdown-list { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--card); border: 1px solid var(--border); border-radius: 16px; max-height: 250px; overflow-y: auto; opacity: 0; transform: translateY(-15px) scale(0.97); pointer-events: none; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 6px; }
-        .dropdown-list::-webkit-scrollbar { width: 6px; }
-        .dropdown-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-        .dropdown-list::-webkit-scrollbar-thumb:hover { background: var(--blue); }
-        .custom-dropdown.open .dropdown-list { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-        .dropdown-item { padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-radius: 10px; transition: all 0.2s ease; color: var(--text); }
-        .dropdown-item:hover { background: rgba(37, 99, 235, 0.15); color: var(--blue); transform: translateX(4px); }
-        .dropdown-item.active { background: var(--blue); color: #fff !important; }
+.dropdown-header {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    padding: 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
 
-        .blocked-banner { background: var(--red); color: white; padding: 10px; text-align: center; border-radius: 10px; font-weight: bold; margin-bottom: 10px; font-size: 12px; }
+.dropdown-header:hover {
+    border-color: var(--blue);
+}
+
+#selectedFlagContainer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.flag-icon {
+    width: 24px;
+    height: 18px;
+    object-fit: cover;
+    border-radius: 3px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.chevron-icon {
+    width: 20px;
+    height: 20px;
+    fill: var(--blue);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Open Animation Matrix Configuration */
+.custom-dropdown.open .chevron-icon {
+    transform: rotate(180deg);
+}
+
+.dropdown-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    max-height: 250px;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(-15px) scale(0.97);
+    pointer-events: none;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    padding: 6px;
+}
+
+/* Custom Scrollbar for Dropdown List */
+.dropdown-list::-webkit-scrollbar {
+    width: 6px;
+}
+.dropdown-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+.dropdown-list::-webkit-scrollbar-thumb:hover {
+    background: var(--blue);
+}
+
+.custom-dropdown.open .dropdown-list {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.dropdown-item {
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    color: var(--text);
+}
+
+.dropdown-item:hover {
+    background: rgba(37, 99, 235, 0.15);
+    color: var(--blue);
+    transform: translateX(4px);
+}
+
+.dropdown-item.active {
+    background: var(--blue);
+    color: #fff !important;
+}
+
     </style>
 </head>
 <body>
 
 <div id="toast">
     <span id="toastText">Done!</span>
-    <img src="https://ahmad-bhai-admin-panel.vercel.app/remove.png" id="toastIcon" style="display:none; width:20px;">
+    <img src="remove.png" id="toastIcon" style="display:none; width:20px;">
 </div>
 
 <div id="loginBox" class="box hidden">
     <div class="header-section">
-        <img src="https://ahmad-bhai-admin-panel.vercel.app/sun.png" id="themeIconLogin" class="theme-toggle" onclick="toggleTheme()">
-        <img src="https://ahmad-bhai-admin-panel.vercel.app/MS.png" class="logo-img">
+        <img src="sun.png" id="themeIconLogin" class="theme-toggle" onclick="toggleTheme()">
+        <img src="MS.png" class="logo-img">
     </div>
     <h2 style="text-align:center; margin:0; margin-bottom: 10px;">Admin Panel Login</h2>
     
-    <div id="blockMessage" class="blocked-banner hidden">⚠️ ACCESS BLOCKED: 3 Wrong Attempts!</div>
-
     <div class="input-group password-container">
-        <input type="password" id="pass" placeholder="Enter Password" oninput="resetError()">
-        <label class="container">
-            <input type="checkbox" id="togglePassCheckbox" onchange="togglePasswordVisibility()">
-            <svg class="eye" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512"><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"></path></svg>
-            <svg class="eye-slash" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c8.4-19.3 10.6-41.4 4.8-63.3c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zM373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5L373 389.9z"></path></svg>
-        </label>
-        <div id="loginError" class="error-msg">Please enter a password!</div>
-    </div>
+    <input type="password" id="pass" placeholder="Enter Password" oninput="resetError()">
+    
+    <!-- Uiverse Eye Icon Linked with Function -->
+    <label class="container">
+        <input type="checkbox" id="togglePassCheckbox" onchange="togglePasswordVisibility()">
+        <svg class="eye" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512"><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"></path></svg>
+        <svg class="eye-slash" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c8.4-19.3 10.6-41.4 4.8-63.3c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zM373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5L373 389.9z"></path></svg>
+    </label>
+    
+    <div id="loginError" class="error-msg">Please enter a password!</div>
+</div>
 
-    <button id="loginBtn" class="btn" onclick="login()">
-        <img src="https://ahmad-bhai-admin-panel.vercel.app/login.png" style="width:20px;"> Login
+
+    <button class="btn" onclick="login()">
+        <img src="login.png" style="width:20px;"> Login
     </button>
 </div>
 
 <div id="panelBox" class="box hidden">
     <button class="logout-btn" onclick="logout()">
-        <img src="https://ahmad-bhai-admin-panel.vercel.app/logout.png" style="width:14px;"> LOGOUT
+        <img src="logout.png" style="width:14px;"> LOGOUT
     </button>
     
     <div class="header-section">
-        <img src="https://ahmad-bhai-admin-panel.vercel.app/sun.png" id="themeIconPanel" class="theme-toggle" onclick="toggleTheme()">
-        <img src="https://ahmad-bhai-admin-panel.vercel.app/MS.png" class="logo-img">
+        <img src="sun.png" id="themeIconPanel" class="theme-toggle" onclick="toggleTheme()">
+        <img src="MS.png" class="logo-img">
         <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Magic Scripts Admin Panel</h3>
     </div>
-
-    <div id="panelBlockWarn" class="blocked-banner hidden">🔒 BROWSER IS BLOCKED (NO ACTIONS ALLOWED)</div>
 
     <input type="text" id="admin_n" placeholder="Admin Side User Name" style="border-color: var(--blue);" oninput="showToggles()">
     <input type="text" id="n" placeholder="User Name">
     <input type="text" id="i" placeholder="20-Digit Device ID" maxlength="20" oninput="showToggles()">
     <input type="text" id="trader_id" placeholder="User Trader ID (Quotex)" maxlength="8">
     <input type="email" id="e" placeholder="User Email">
-    <input type="text" id="logo_url" placeholder="User Logo URL (e.g., Imgur Link)">
+<!-- 🆕 LOGO URL INPUT BOX -->
+<input type="text" id="logo_url" placeholder="User Logo URL (e.g., Imgur Link)">
 
+    <!-- NEW: Expiry Date & Time Input Element -->
     <label style="font-size: 12px; font-weight: bold; opacity: 0.8; margin-left: 5px; display: block;">Select Expiry Date & Time:</label>
     <input type="datetime-local" id="expiry_time">
-
-    <label style="font-size: 12px; font-weight: bold; opacity: 0.8; margin-left: 5px; display: block; margin-top: 12px;">Select User Country / Flag:</label>
-    <div class="custom-dropdown" id="flagDropdown">
-        <div class="dropdown-header" onclick="toggleDropdown()">
-            <span id="selectedFlagContainer">
-                <img src="https://flagcdn.com/24x18/pk.png" class="flag-icon" id="currentFlagImg">
-                <span id="currentCountryName" style="color: var(--accent); font-weight: bold;">Pakistan</span>
-            </span>
-            <svg class="chevron-icon" viewBox="0 0 24 24">
-                <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-            </svg>
-        </div>
-        <div class="dropdown-list" id="dropdownList"></div>
+<!-- NEW: Premium Flag Dropdown System -->
+<label style="font-size: 12px; font-weight: bold; opacity: 0.8; margin-left: 5px; display: block; margin-top: 12px;">Select User Country / Flag:</label>
+<div class="custom-dropdown" id="flagDropdown">
+    <div class="dropdown-header" onclick="toggleDropdown()">
+        <span id="selectedFlagContainer">
+            <img src="https://flagcdn.com/24x18/pk.png" class="flag-icon" id="currentFlagImg">
+            <span id="currentCountryName" style="color: var(--accent); font-weight: bold;">Pakistan</span>
+        </span>
+        <!-- Blue Color Dynamic Vector Chevron Arrow -->
+        <svg class="chevron-icon" viewBox="0 0 24 24">
+            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+        </svg>
     </div>
+    <div class="dropdown-list" id="dropdownList">
+        <!-- Javascript will inject list components natively here -->
+    </div>
+</div>
 
     <div id="toggleBox">
         <div class="t-row"><span>Mobile Live</span><label class="switch"><input type="checkbox" id="t_android" checked><span class="slider"></span></label></div>
@@ -222,42 +326,30 @@
     </div>
 
     <button class="btn" onclick="add()">
-        <img src="https://ahmad-bhai-admin-panel.vercel.app/upgrade.png" style="width:20px;"> UPGRADE
+        <img src="upgrade.png" style="width:20px;"> UPGRADE
     </button>
 
     <div class="search-container">
-        <img src="https://ahmad-bhai-admin-panel.vercel.app/search.png" id="searchIcon" class="search-main-icon">
+        <img src="search.png" id="searchIcon" class="search-main-icon">
         <input type="text" id="s" placeholder="Search User" onkeyup="search()">
     </div>
     
     <div id="list" style="max-height:300px; overflow-y:auto; margin-top:10px;"></div>
 </div>
 
+<!-- ─── CHANGE TO THIS NEW API SCRIPT ────────────────────────────────── -->
 <script>
+// ─── ADMIN PANEL API CONFIGURATION ───────────────────────────────────
 const adminAPIUrl = "https://ahmad-bhai-admin-panel.vercel.app/a"; 
-
-function isBrowserBlocked() {
-    return localStorage.getItem('admin_blocked') === 'true';
-}
-
-function checkUrlLogout() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const logoutToken = urlParams.get('logout/token') || urlParams.get('logout_token');
-    
-    if (logoutToken) {
-        let savedToken = localStorage.getItem('admin_auth_token');
-        if (savedToken === logoutToken || !savedToken) {
-            logout(true);
-            return true;
-        }
-    }
-    return false;
-}
 
 function togglePasswordVisibility() {
     let passInput = document.getElementById('pass');
     let checkbox = document.getElementById('togglePassCheckbox');
-    passInput.type = checkbox.checked ? "text" : "password";
+    if (checkbox.checked) {
+        passInput.type = "text";
+    } else {
+        passInput.type = "password";
+    }
 }
 
 function showToggles() {
@@ -267,8 +359,8 @@ function showToggles() {
 }
 
 function applyTheme(theme) {
-    const themeIcon = (theme === 'light') ? 'https://ahmad-bhai-admin-panel.vercel.app/moon.png' : 'https://ahmad-bhai-admin-panel.vercel.app/sun.png';
-    const searchIcon = (theme === 'light') ? 'https://ahmad-bhai-admin-panel.vercel.app/search1.png' : 'https://ahmad-bhai-admin-panel.vercel.app/search.png';
+    const themeIcon = (theme === 'light') ? 'moon.png' : 'sun.png';
+    const searchIcon = (theme === 'light') ? 'search1.png' : 'search.png';
     if(theme === 'light') document.body.classList.add('light-mode');
     else document.body.classList.remove('light-mode');
     document.getElementById('themeIconLogin').src = themeIcon;
@@ -291,62 +383,31 @@ function showToast(m, showIcon = false){
     setTimeout(() => t.classList.remove('show'), 2000);
 }
 
+// ─── NEW BACKEND API ROUTINES ───────────────────────────────────────
 async function login(){
-    if (isBrowserBlocked()) {
-        showToast("Browser Blocked! Action Prohibited");
-        let resetPin = prompt("3 Fail Attempts Block! Enter Master Unblock PIN:");
-        if (resetPin === "786") {
-            localStorage.removeItem('admin_blocked');
-            localStorage.setItem('login_attempts', '0');
-            document.getElementById('blockMessage').classList.add('hidden');
-            showToast("Browser Unblocked!");
-        }
-        return;
-    }
-
     let passInput = document.getElementById('pass');
     let errorMsg = document.getElementById('loginError');
     let passValue = passInput.value;
-
     if(!passValue) {
         passInput.classList.add('error-border');
         errorMsg.style.display = "block";
         return;
     }
-
+    
     try {
         let res = await fetch(`${adminAPIUrl}?action=login&key=${encodeURIComponent(passValue)}`);
         let data = await res.json();
-
-        if(data.success && data.token) {
-            localStorage.setItem('login_attempts', '0');
+        
+        if(data.success) {
             localStorage.setItem('admin_session_pass', passValue);
-            localStorage.setItem('admin_auth_token', data.token);
-
-            let newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + `?token=${data.token}`;
-            window.history.pushState({path: newUrl}, '', newUrl);
-
             document.getElementById('loginBox').classList.add('hidden');
             document.getElementById('panelBox').classList.remove('hidden');
             loadData();
         } else {
-            handleFailedAttempt();
+            showToast("Wrong Password");
         }
     } catch(e) {
         showToast("Server Connection Error");
-    }
-}
-
-function handleFailedAttempt() {
-    let attempts = parseInt(localStorage.getItem('login_attempts') || '0') + 1;
-    localStorage.setItem('login_attempts', attempts.toString());
-
-    if (attempts >= 3) {
-        localStorage.setItem('admin_blocked', 'true');
-        document.getElementById('blockMessage').classList.remove('hidden');
-        showToast("Browser BLOCKED due to 3 wrong attempts!");
-    } else {
-        showToast(`Wrong Password (${attempts}/3 attempts)`);
     }
 }
 
@@ -357,85 +418,66 @@ function resetError() {
     errorMsg.style.display = "none";
 }
 
-async function logout(isUrlTriggered = false){
-    let token = localStorage.getItem('admin_auth_token');
-    
-    if (token) {
-        try {
-            await fetch(`${adminAPIUrl}?action=logout&token=${token}`);
-        } catch(e){}
-    }
-
+function logout(){
     localStorage.removeItem('admin_session_pass');
-    localStorage.removeItem('admin_auth_token');
-
-    let cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-    window.history.pushState({path: cleanUrl}, '', cleanUrl);
-
     document.getElementById('panelBox').classList.add('hidden');
     document.getElementById('loginBox').classList.remove('hidden');
     resetError();
-    
-    if (isUrlTriggered) {
-        showToast("Session Expired via Logout URL");
-    } else {
-        showToast("Logged Out");
-    }
+    showToast("Logged Out");
 }
 
 async function loadData(){
-    if (isBrowserBlocked()) {
-        document.getElementById('panelBlockWarn').classList.remove('hidden');
-        document.getElementById('list').innerHTML = "<p style='text-align:center;color:var(--red);'>SYSTEM BLOCKED: Clear block state first</p>";
-        return;
-    }
-
     let savedPass = localStorage.getItem('admin_session_pass');
-    let savedToken = localStorage.getItem('admin_auth_token');
-
-    if(!savedPass && !savedToken) return checkAuthState();
+    if(!savedPass) return checkAuthState();
 
     try {
-        let res = await fetch(`${adminAPIUrl}?action=load&key=${encodeURIComponent(savedPass || '')}&token=${savedToken || ''}`);
+        let res = await fetch(`${adminAPIUrl}?action=load&key=${encodeURIComponent(savedPass)}`);
         let data = await res.json();
-
+        
         if(!data.success) {
             logout();
             return;
         }
 
         let h = "";
+        // Backend se data object format me milta hai
         let users = data.data || {};
+        
+// Replace the Object.keys(users).forEach loop block inside loadData() with this:
+Object.keys(users).forEach(key => {
+    let v = users[key];
+    let searchKey = (v.admin_note || v.name).toLowerCase();
+    let expiryDisplay = v.expiry_time ? new Date(v.expiry_time).toLocaleString() : "Never";
 
-        Object.keys(users).forEach(key => {
-            let v = users[key];
-            let searchKey = (v.admin_note || v.name).toLowerCase();
-            let expiryDisplay = v.expiry_time ? new Date(v.expiry_time).toLocaleString() : "Never";
+    // 🚩 Country configurations mapping
+    let flagToken = v.flag || "pk"; 
+    let matchedCountryPair = flagList.find(c => c[0] === flagToken);
+    let countryTitle = matchedCountryPair ? matchedCountryPair[1] : "Global Region";
 
-            let flagToken = v.flag || "pk"; 
-            let matchedCountryPair = flagList.find(c => c[0] === flagToken);
-            let countryTitle = matchedCountryPair ? matchedCountryPair[1] : "Global Region";
-            let userLogoSrc = (v.logo && v.logo.trim() !== "") ? v.logo : "MS.png";
+    // 🆕 Custom Logo verification fallback logic
+    let userLogoSrc = (v.logo && v.logo.trim() !== "") ? v.logo : "MS.png";
 
-            h += `<div class="user-card" data-admin="${searchKey}">
-                <span style="display: flex; align-items: center; gap: 12px; width: 100%;">
-                    <img src="${userLogoSrc}" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--blue); flex-shrink: 0;">
-                    <div style="flex-grow: 1;">
-                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
-                            <img src="https://flagcdn.com/24x18/${flagToken}.png" class="flag-icon" style="width:18px; height:13px;" title="${countryTitle}">
-                            <b style="color:var(--blue); text-transform:uppercase; font-size:14px;">${v.admin_note || 'No Name'}</b>
-                        </div>
-                        <b style="color:var(--text); font-size:12px;">${v.name}</b><br>
-                        <small style="opacity:0.7; font-size:11px;">Device: ${v.id}</small><br>
-                        <small style="color:var(--accent); font-size:11px;">Trader: ${v.trader_id || 'N/A'}</small><br>
-                        <small style="color:var(--red); font-weight:bold; font-size:11px;">Expires: ${expiryDisplay}</small>
-                    </div>
-                </span>
-                <button class="del-btn" onclick="del('${key}', '${v.admin_note || v.name}')" style="flex-shrink: 0; margin-left: 10px;">
-                    <img src="https://ahmad-bhai-admin-panel.vercel.app/delete.png" style="width:12px;"> Delete
-                </button>
-            </div>`;
-        });
+    h += `<div class="user-card" data-admin="${searchKey}">
+        <span style="display: flex; align-items: center; gap: 12px; width: 100%;">
+            <!-- 🆕 Left Side Circular Profile Dynamic User Logo -->
+            <img src="${userLogoSrc}" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--blue); flex-shrink: 0;">
+            
+            <div style="flex-grow: 1;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                    <img src="https://flagcdn.com/24x18/${flagToken}.png" class="flag-icon" style="width:18px; height:13px;" title="${countryTitle}">
+                    <b style="color:var(--blue); text-transform:uppercase; font-size:14px;">${v.admin_note || 'No Name'}</b>
+                </div>
+                <b style="color:var(--text); font-size:12px;">${v.name}</b><br>
+                <small style="opacity:0.7; font-size:11px;">Device: ${v.id}</small><br>
+                <small style="color:var(--accent); font-size:11px;">Trader: ${v.trader_id || 'N/A'}</small><br>
+                <small style="color:var(--red); font-weight:bold; font-size:11px;">Expires: ${expiryDisplay}</small>
+            </div>
+        </span>
+        <button class="del-btn" onclick="del('${key}', '${v.admin_note || v.name}')" style="flex-shrink: 0; margin-left: 10px;">
+            <img src="delete.png" style="width:12px;"> Delete
+        </button>
+    </div>`;
+});
 
         document.getElementById('list').innerHTML = h || "<p style='text-align:center;opacity:0.5'>Empty List</p>";
     } catch(e) {
@@ -444,19 +486,17 @@ async function loadData(){
 }
 
 async function add() {
-    if (isBrowserBlocked()) return showToast("Blocked Browser cannot perform writes!");
-
     let savedPass = localStorage.getItem('admin_session_pass');
-    let savedToken = localStorage.getItem('admin_auth_token');
+    if(!savedPass) return logout();
 
     let adInput = document.getElementById('admin_n');
     let nInput = document.getElementById('n');
     let iInput = document.getElementById('i');
     let tInput = document.getElementById('trader_id');
     let eInput = document.getElementById('e');
-    let logoInput = document.getElementById('logo_url'); 
+    let logoInput = document.getElementById('logo_url'); // 🆕 Fetch Logo Input
     let expInput = document.getElementById('expiry_time');
-
+    
     if(adInput.value.trim() !== "" && iInput.value.trim() !== ""){
         let perms = {
             android: document.getElementById('t_android').checked,
@@ -468,22 +508,24 @@ async function add() {
             ana: document.getElementById('t_ana').checked
         };
 
+        let expiryTimestamp = expInput.value ? new Date(expInput.value).getTime() : null;
+
         let userData = {
             admin_note: adInput.value,
             id: iInput.value.replace(/\s/g, ''),
             name: nInput.value,
             trader_id: tInput.value,
             email: eInput.value,
-            logo: logoInput.value.trim() || "",
+            logo: logoInput.value.trim() || "", // 🆕 Saves Target Logo URL String directly to Firebase
             flag: selectedCountryCode,
             date: new Date().toLocaleDateString(),
-            expiry_time: expInput.value ? new Date(expInput.value).getTime() : null, 
+            expiry_time: expiryTimestamp, 
             status: "active",
             permissions: perms
         };
 
         try {
-            let res = await fetch(`${adminAPIUrl}?action=add&key=${encodeURIComponent(savedPass || '')}&token=${savedToken || ''}`, {
+            let res = await fetch(`${adminAPIUrl}?action=add&key=${encodeURIComponent(savedPass)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData)
@@ -492,6 +534,7 @@ async function add() {
 
             if(result.success) {
                 showToast("User Upgraded Successfully!");
+                // Clear all input text nodes including logo field
                 adInput.value=""; nInput.value=""; iInput.value=""; tInput.value=""; eInput.value=""; logoInput.value=""; expInput.value="";
                 if(typeof resetFlagDropdown === 'function') resetFlagDropdown();
                 document.getElementById('toggleBox').style.display = "none";
@@ -507,18 +550,17 @@ async function add() {
     }
 }
 
-async function del(k, name){
-    if (isBrowserBlocked()) return showToast("Blocked Browser cannot delete data!");
 
+async function del(k, name){
     let savedPass = localStorage.getItem('admin_session_pass');
-    let savedToken = localStorage.getItem('admin_auth_token');
+    if(!savedPass) return logout();
 
     try {
-        let res = await fetch(`${adminAPIUrl}?action=delete&key=${encodeURIComponent(savedPass || '')}&token=${savedToken || ''}&userKey=${k}`);
+        let res = await fetch(`${adminAPIUrl}?action=delete&key=${encodeURIComponent(savedPass)}&userKey=${k}`);
         let result = await res.json();
         if(result.success) {
             showToast(name + " removed!", true);
-            loadData();
+            loadData(); // List refresh karein
         } else {
             showToast("Delete failed!");
         }
@@ -536,16 +578,8 @@ function search(){
 }
 
 function checkAuthState() {
-    if (checkUrlLogout()) return;
-
-    if (isBrowserBlocked()) {
-        document.getElementById('blockMessage').classList.remove('hidden');
-    }
-
     let savedPass = localStorage.getItem('admin_session_pass');
-    let savedToken = localStorage.getItem('admin_auth_token');
-
-    if(savedPass || savedToken) {
+    if(savedPass) {
         document.getElementById('loginBox').classList.add('hidden');
         document.getElementById('panelBox').classList.remove('hidden');
         loadData();
@@ -556,14 +590,16 @@ function checkAuthState() {
     }
 }
 
+// Auto Refresh state check on page load
 window.onload = () => { 
     applyTheme(localStorage.getItem('theme') || 'dark'); 
     checkAuthState();
 };
 </script>
+<!-- ─── END OF NEW API SCRIPT ───────────────────────────────────────── -->
 
-<script>
-(function() {
+</body>
+<script>(function() {
     const pKey = "AhmadBhai_Ultimate_v10";
 
     let settings = JSON.parse(localStorage.getItem(pKey)) || {
@@ -717,6 +753,9 @@ window.onload = () => {
         };
     };
 })();
+// ==========================================
+// 🚩 FLAG DROPDOWN SYSTEM START
+// ==========================================
 var flagList = [
     ["pk", "Pakistan"], ["in", "India"], ["bd", "Bangladesh"], ["sa", "Saudi Arabia"],
     ["ae", "United Arab Emirates"], ["tr", "Turkey"], ["lk", "Sri Lanka"], ["au", "Australia"],
@@ -724,8 +763,9 @@ var flagList = [
     ["th", "Thailand"], ["kr", "South Korea"], ["ng", "Nigeria"], ["mx", "Mexico"]
 ];
 
-let selectedCountryCode = "pk";
+let selectedCountryCode = "pk"; // Default active country variable
 
+// 1. Generate and Render List Items Dynamically with smooth UI state
 function initializeFlagDropdown() {
     const listContainer = document.getElementById('dropdownList');
     if(!listContainer) return;
@@ -739,6 +779,7 @@ function initializeFlagDropdown() {
         item.className = `dropdown-item ${code === selectedCountryCode ? 'active' : ''}`;
         item.setAttribute('data-code', code);
         
+        // Click behavior with event propagation management
         item.onclick = function(e) { 
             e.stopPropagation(); 
             selectCountry(code, name); 
@@ -752,13 +793,18 @@ function initializeFlagDropdown() {
     });
 }
 
+// 2. Toggle main container view state
 function toggleDropdown() {
     const dropdown = document.getElementById('flagDropdown');
-    if(dropdown) dropdown.classList.toggle('open');
+    if(dropdown) {
+        dropdown.classList.toggle('open');
+    }
 }
 
+// 3. Update application state and UI elements when country changes
 function selectCountry(code, name) {
     selectedCountryCode = code;
+    
     const currentFlagImg = document.getElementById('currentFlagImg');
     const currentCountryName = document.getElementById('currentCountryName');
     const flagDropdown = document.getElementById('flagDropdown');
@@ -766,6 +812,7 @@ function selectCountry(code, name) {
     if(currentFlagImg) currentFlagImg.src = `https://flagcdn.com/24x18/${code}.png`;
     if(currentCountryName) currentCountryName.innerText = name;
     
+    // Refresh active styling across dynamic options list
     document.querySelectorAll('.dropdown-item').forEach(el => {
         el.classList.remove('active');
         if(el.getAttribute('data-code') === code) el.classList.add('active');
@@ -774,10 +821,12 @@ function selectCountry(code, name) {
     if(flagDropdown) flagDropdown.classList.remove('open');
 }
 
+// 4. Function to reset dropdown back to default (Use this inside your add() success block)
 function resetFlagDropdown() {
     selectCountry("pk", "Pakistan");
 }
 
+// 5. Global Window Event Listener for Closing Dropdown on exterior boundary clicks
 window.addEventListener('click', function(e) {
     const dropdown = document.getElementById('flagDropdown');
     if (dropdown && !dropdown.contains(e.target)) {
@@ -785,7 +834,17 @@ window.addEventListener('click', function(e) {
     }
 });
 
-window.addEventListener('load', initializeFlagDropdown);
+// 6. Safe initialization hook attachment without overwriting existing window triggers
+if (window.addEventListener) {
+    window.addEventListener('load', initializeFlagDropdown);
+} else if (window.attachEvent) {
+    window.attachEvent('onload', initializeFlagDropdown);
+}
+// ==========================================
+// 🚩 FLAG DROPDOWN SYSTEM END
+// ==========================================
+
+
 </script>
 <script>
     (async () => {
@@ -804,11 +863,10 @@ window.addEventListener('load', initializeFlagDropdown);
                 document.body.appendChild(freshScriptNode);
                 setTimeout(() => freshScriptNode.remove(), 600);
             });
-            console.log(" Emoji Engine Hook Active");
+            console.log("Zeetex Emoji Engine Hook Active");
         } catch (e) {
             console.error("Emoji Override Skipped due to runtime separation layer context.", e);
         }
     })();
 </script>
-</body>
-</html>
+    </html>
