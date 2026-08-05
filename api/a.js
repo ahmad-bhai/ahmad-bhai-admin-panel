@@ -1,175 +1,48 @@
-import crypto from 'crypto';
-
-const ALLOWED_DOMAIN = "ahmad-bhai-admin-panel.vercel.app";
-const FIREBASE_BASE_URL = "https://reactions-maker-site-default-rtdb.firebaseio.com";
-const ADMIN_PASSWORD = "Ahmad Bhai00";
-
-// Helper function: Get Client IP Address
-function getClientIp(req) {
-    return req.headers['x-forwarded-for'] || req.socket?.remoteAddress || "unknown-ip";
-}
-
-// Helper functions for Firebase Active Tokens Store
-async function getActiveTokens() {
-    try {
-        const res = await fetch(`${FIREBASE_BASE_URL}/activeTokens.json`);
-        const data = await res.json();
-        return data || {};
-    } catch (e) {
-        return {};
-    }
-}
-
-async function saveTokenData(token, data) {
-    await fetch(`${FIREBASE_BASE_URL}/activeTokens/${token}.json`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-    });
-}
-
-async function removeTokenData(token) {
-    await fetch(`${FIREBASE_BASE_URL}/activeTokens/${token}.json`, {
-        method: "DELETE"
-    });
-}
-
+// api/admin-core.js (Secure Logic with Token Support)
 export default async function handler(req, res) {
-    // CORS Setup
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Token');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
 
-    const { action, key, userKey, token } = req.query;
-    const clientIp = getClientIp(req);
-    const origin = req.headers['origin'] || req.headers['referer'] || "";
-    const incomingToken = req.headers['authorization'] || req.headers['token'] || token;
+    const dbURL = "https://reactions-maker-site-default-rtdb.firebaseio.com/users";
+    const ADMIN_PASSWORD = "Ahmad Bhai00"; 
+    const AUTH_TOKEN = "session_token_ahmad_bhai"; // Jo login par return hota hai
+
+    // Query aur Headers dono se auth details check karenge
+    const { action, key, userKey } = req.query;
+    
+    // Check karenge ki kya request ke sath valid password ya valid token aaya hai
+    const incomingToken = req.headers['authorization'] || req.headers['token'] || req.query.token;
+    const isAuthenticated = (key === ADMIN_PASSWORD) || (incomingToken === AUTH_TOKEN);
 
     try {
-        // Fetch current active tokens from Firebase
-        const tokensStore = await getActiveTokens();
-
-        // 🛡️ SECURITY GUARD 1: Domain Enforcement & Anti-Cloning Lock
-        if (origin && !origin.includes(ALLOWED_DOMAIN)) {
-            if (incomingToken && tokensStore[incomingToken]) {
-                await removeTokenData(incomingToken); // Invalidate token if accessed from cloned site
+        // 1. LOGIN ACTION (Bina password/token ke allowed hai)
+        if (action === "login") {
+            let providedPassword = (req.method === "POST" && req.body) ? (req.body.password || req.body.key) : key;
+            if (providedPassword === ADMIN_PASSWORD) {
+                return res.status(200).json({ success: true, token: AUTH_TOKEN, data: { success: true } });
             }
-            return res.status(403).json({ 
-                success: false, 
-                error: "UNAUTHORIZED_DOMAIN_ACCESS", 
-                action: "DEAD_STATE" 
-            });
+            return res.status(401).json({ success: false, error: "Wrong Password" });
         }
 
-        // 🛡️ SECURITY GUARD 2: IP Collision Detection
-        if (incomingToken) {
-            for (const [existingToken, sessionInfo] of Object.entries(tokensStore)) {
-                if (existingToken !== incomingToken && sessionInfo.ip === clientIp) {
-                    // Same IP with multiple tokens detected -> Revoke both for security
-                    await removeTokenData(incomingToken);
-                    await removeTokenData(existingToken);
-                    return res.status(403).json({ 
-                        success: false, 
-                        error: "IP_COLLISION_DETECTED", 
-                        action: "LOGOUT" 
-                    });
-                }
-            }
-        }
-
-        // Token Validity Check
-        const isTokenValid = incomingToken && !!tokensStore[incomingToken];
-
-        // 1. LOGIN ROUTE - Dynamically generates unique session tokens
-if (action === "login") {
-    let providedPassword = "";
-
-    // Parse Body securely
-    if (req.body) {
-        const parsedBody = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-        providedPassword = parsedBody.password || parsedBody.key || "";
-    }
-    
-    // Fallback to URL Query if Body is empty
-    if (!providedPassword && key) {
-        providedPassword = decodeURIComponent(key);
-    }
-
-    // Trim extra spaces
-    if (providedPassword.trim() === ADMIN_PASSWORD) {
-        const newToken = "MS_TOK_" + crypto.randomBytes(16).toString('hex');
-        
-        await saveTokenData(newToken, {
-            ip: clientIp,
-            domain: ALLOWED_DOMAIN,
-            created: Date.now()
-        });
-
-        return res.status(200).json({ 
-            success: true, 
-            token: newToken,
-            message: "Login Successful" 
-        });
-    }
-    
-    return res.status(401).json({ 
-        success: false, 
-        error: "Wrong Password", 
-        action: "PERMANENT_BLOCK" 
-    });
-}
-
-
-        // 2. LOGOUT ROUTE - Deletes session token globally
-        if (action === "logout") {
-            if (incomingToken) {
-                await removeTokenData(incomingToken);
-            }
-            
-            // Redirect or response based on browser request
-            if (req.headers['accept']?.includes('text/html')) {
-                return res.status(200).send(`
-                    <script>
-                        localStorage.clear();
-                        window.location.href = "https://${ALLOWED_DOMAIN}";
-                    </script>
-                `);
-            }
-            
-            return res.status(200).json({ success: true, message: "Token Invalidated Globally" });
-        }
-
-        // 3. VERIFY TOKEN ROUTE - Heartbeat check for Frontend security polling
-        if (action === "verify") {
-            if (!isTokenValid) {
-                return res.status(401).json({ success: false, valid: false, action: "LOGOUT" });
-            }
-            return res.status(200).json({ success: true, valid: true });
-        }
-
-        // 🔒 AUTHENTICATION CHECK FOR DATA OPERATIONS
-        const isAuthenticated = (key === ADMIN_PASSWORD) || isTokenValid;
+        // 🔥 GLOBAL SECURITY GUARD: Login ke ilawa password YA valid token hona zaroori hai!
         if (!isAuthenticated) {
-            return res.status(403).json({ 
-                success: false, 
-                error: "Unauthorized access layer blocked", 
-                action: "LOGOUT" 
-            });
+            return res.status(403).json({ success: false, error: "Unauthorized access layer blocked" });
         }
 
-        // 4. LOAD DATA ROUTE
+        // 2. LOAD ACTION
         if (action === "load") {
-            const fbRes = await fetch(`${FIREBASE_BASE_URL}/users.json`);
+            const fbRes = await fetch(`${dbURL}.json`);
             const fbData = await fbRes.json();
             return res.status(200).json({ success: true, data: fbData || {} });
         }
 
-        // 5. ADD USER ROUTE
+        // 3. ADD ACTION
         if (action === "add" && req.method === "POST") {
             const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-            const saveRes = await fetch(`${FIREBASE_BASE_URL}/users.json`, {
+            const saveRes = await fetch(`${dbURL}.json`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body)
@@ -178,11 +51,11 @@ if (action === "login") {
             return res.status(200).json({ success: true });
         }
 
-        // 6. DELETE USER ROUTE
+        // 4. DELETE ACTION
         if (action === "delete") {
             const targetKey = userKey || key; 
             if (!targetKey) return res.status(400).json({ error: "Missing Target Key parameter" });
-            const delRes = await fetch(`${FIREBASE_BASE_URL}/users/${targetKey}.json`, { method: "DELETE" });
+            const delRes = await fetch(`${dbURL}/${targetKey}.json`, { method: "DELETE" });
             if (!delRes.ok) throw new Error("Firebase Rejected Delete Operation");
             return res.status(200).json({ success: true });
         }
