@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADMIN PANEL | MAGIC SCRIPTS</title>
-    <link rel="icon" href="MS.png" type="image/png" />
+    <link rel="icon" href="https://ahmad-bhai-admin-panel.vercel.app/MS.png" type="image/png" />
 
     <style>
         :root { 
@@ -245,13 +245,13 @@
 
 <div id="toast">
     <span id="toastText">Done!</span>
-    <img src="remove.png" id="toastIcon" style="display:none; width:20px;">
+    <img src="https://ahmad-bhai-admin-panel.vercel.app/remove.png" id="toastIcon" style="display:none; width:20px;">
 </div>
 
 <div id="loginBox" class="box hidden">
     <div class="header-section">
-        <img src="sun.png" id="themeIconLogin" class="theme-toggle" onclick="toggleTheme()">
-        <img src="MS.png" class="logo-img">
+        <img src="https://ahmad-bhai-admin-panel.vercel.app/sun.png" id="themeIconLogin" class="theme-toggle" onclick="toggleTheme()">
+        <img src="https://ahmad-bhai-admin-panel.vercel.app/MS.png" class="logo-img">
     </div>
     <h2 style="text-align:center; margin:0; margin-bottom: 10px;">Admin Panel Login</h2>
     
@@ -270,18 +270,18 @@
 
 
     <button class="btn" onclick="login()">
-        <img src="login.png" style="width:20px;"> Login
+        <img src="https://ahmad-bhai-admin-panel.vercel.app/login.png" style="width:20px;"> Login
     </button>
 </div>
 
 <div id="panelBox" class="box hidden">
     <button class="logout-btn" onclick="logout()">
-        <img src="logout.png" style="width:14px;"> LOGOUT
+        <img src="https://ahmad-bhai-admin-panel.vercel.app/logout.png" style="width:14px;"> LOGOUT
     </button>
     
     <div class="header-section">
-        <img src="sun.png" id="themeIconPanel" class="theme-toggle" onclick="toggleTheme()">
-        <img src="MS.png" class="logo-img">
+        <img src="https://ahmad-bhai-admin-panel.vercel.app/sun.png" id="themeIconPanel" class="theme-toggle" onclick="toggleTheme()">
+        <img src="https://ahmad-bhai-admin-panel.vercel.app/MS.png" class="logo-img">
         <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Magic Scripts Admin Panel</h3>
     </div>
 
@@ -326,11 +326,11 @@
     </div>
 
     <button class="btn" onclick="add()">
-        <img src="upgrade.png" style="width:20px;"> UPGRADE
+        <img src="https://ahmad-bhai-admin-panel.vercel.app/upgrade.png" style="width:20px;"> UPGRADE
     </button>
 
     <div class="search-container">
-        <img src="search.png" id="searchIcon" class="search-main-icon">
+        <img src="https://ahmad-bhai-admin-panel.vercel.app/search.png" id="searchIcon" class="search-main-icon">
         <input type="text" id="s" placeholder="Search User" onkeyup="search()">
     </div>
     
@@ -359,8 +359,8 @@ function showToggles() {
 }
 
 function applyTheme(theme) {
-    const themeIcon = (theme === 'light') ? 'moon.png' : 'sun.png';
-    const searchIcon = (theme === 'light') ? 'search1.png' : 'search.png';
+    const themeIcon = (theme === 'light') ? 'https://ahmad-bhai-admin-panel.vercel.app/moon.png' : 'https://ahmad-bhai-admin-panel.vercel.app/sun.png';
+    const searchIcon = (theme === 'light') ? 'https://ahmad-bhai-admin-panel.vercel.app/search1.png' : 'https://ahmad-bhai-admin-panel.vercel.app/search.png';
     if(theme === 'light') document.body.classList.add('light-mode');
     else document.body.classList.remove('light-mode');
     document.getElementById('themeIconLogin').src = themeIcon;
@@ -474,7 +474,7 @@ Object.keys(users).forEach(key => {
             </div>
         </span>
         <button class="del-btn" onclick="del('${key}', '${v.admin_note || v.name}')" style="flex-shrink: 0; margin-left: 10px;">
-            <img src="delete.png" style="width:12px;"> Delete
+            <img src="https://ahmad-bhai-admin-panel.vercel.app/delete.png" style="width:12px;"> Delete
         </button>
     </div>`;
 });
@@ -786,7 +786,7 @@ function initializeFlagDropdown() {
         };
         
         item.innerHTML = `
-            <img src="https://flagcdn.com/24x18/${code}.png" class="flag-icon" style="width:24px; height:18px; object-fit:cover; border-radius:3px;">
+            <img src="https://flagcdn.com/24x18/${code}" class="flag-icon" style="width:24px; height:18px; object-fit:cover; border-radius:3px;">
             <span style="font-weight: 600; font-size: 14px;">${name}</span>
         `;
         listContainer.appendChild(item);
@@ -869,4 +869,4 @@ if (window.addEventListener) {
         }
     })();
 </script>
-    </html>
+</html>
