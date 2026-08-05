@@ -1,45 +1,66 @@
-// api/admin-core.js (Secure Logic with Token Support)
+import crypto from 'crypto';
+
+// Token session storage (In-memory storage)
+const activeTokens = new Set();
+
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Token');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const dbURL = "https://reactions-maker-site-default-rtdb.firebaseio.com/users";
     const ADMIN_PASSWORD = "Ahmad Bhai00"; 
-    const AUTH_TOKEN = "session_token_ahmad_bhai"; // Jo login par return hota hai
 
-    // Query aur Headers dono se auth details check karenge
-    const { action, key, userKey } = req.query;
+    const { action, key, userKey, token } = req.query;
     
-    // Check karenge ki kya request ke sath valid password ya valid token aaya hai
-    const incomingToken = req.headers['authorization'] || req.headers['token'] || req.query.token;
-    const isAuthenticated = (key === ADMIN_PASSWORD) || (incomingToken === AUTH_TOKEN);
+    const incomingToken = req.headers['authorization'] || req.headers['token'] || token;
+
+    // Check ki requested token active token list me hai ya password sahi hai
+    const isTokenValid = incomingToken && activeTokens.has(incomingToken);
+    const isAuthenticated = (key === ADMIN_PASSWORD) || isTokenValid;
 
     try {
-        // 1. LOGIN ACTION (Bina password/token ke allowed hai)
+        // 1. LOGIN ROUTE - Dynamically generates unique session tokens
         if (action === "login") {
             let providedPassword = (req.method === "POST" && req.body) ? (req.body.password || req.body.key) : key;
+            
             if (providedPassword === ADMIN_PASSWORD) {
-                return res.status(200).json({ success: true, token: AUTH_TOKEN, data: { success: true } });
+                // Generate secure random token
+                const newToken = "MS_TOK_" + crypto.randomBytes(16).toString('hex');
+                activeTokens.add(newToken);
+
+                return res.status(200).json({ 
+                    success: true, 
+                    token: newToken,
+                    message: "Login Successful" 
+                });
             }
             return res.status(401).json({ success: false, error: "Wrong Password" });
         }
 
-        // 🔥 GLOBAL SECURITY GUARD: Login ke ilawa password YA valid token hona zaroori hai!
+        // 2. LOGOUT ROUTE - Deletes target session token
+        if (action === "logout") {
+            if (incomingToken) {
+                activeTokens.delete(incomingToken);
+            }
+            return res.status(200).json({ success: true, message: "Token Invalidated" });
+        }
+
+        // 🔥 SECURITY GUARD: Protects database operations
         if (!isAuthenticated) {
             return res.status(403).json({ success: false, error: "Unauthorized access layer blocked" });
         }
 
-        // 2. LOAD ACTION
+        // 3. LOAD DATA ROUTE
         if (action === "load") {
             const fbRes = await fetch(`${dbURL}.json`);
             const fbData = await fbRes.json();
             return res.status(200).json({ success: true, data: fbData || {} });
         }
 
-        // 3. ADD ACTION
+        // 4. ADD USER ROUTE
         if (action === "add" && req.method === "POST") {
             const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
             const saveRes = await fetch(`${dbURL}.json`, {
@@ -51,7 +72,7 @@ export default async function handler(req, res) {
             return res.status(200).json({ success: true });
         }
 
-        // 4. DELETE ACTION
+        // 5. DELETE USER ROUTE
         if (action === "delete") {
             const targetKey = userKey || key; 
             if (!targetKey) return res.status(400).json({ error: "Missing Target Key parameter" });
