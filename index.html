@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADMIN PANEL | MAGIC SCRIPTS</title>
-    <link rel="icon" href="https://ahmad-bhai-admin-panel.vercel.app/MS.png" type="image/png" />
+    <link rel="icon" href="https://magic-scripts.vercel.app/logo.svg" type="image/png" />
 
     <style>
         :root { 
@@ -245,7 +245,7 @@
 
 <div id="toast">
     <span id="toastText">Done!</span>
-    <img src="https://ahmad-bhai-admin-panel.vercel.app/remove.png" id="toastIcon" style="display:none; width:20px;">
+    <img src="remove.png" id="toastIcon" style="display:none; width:20px;">
 </div>
 
 <div id="loginBox" class="box hidden">
@@ -280,7 +280,7 @@
     </button>
     
     <div class="header-section">
-        <img src="https://ahmad-bhai-admin-panel.vercel.app/sun.png" id="themeIconPanel" class="theme-toggle" onclick="toggleTheme()">
+        <img src="sun.png" id="themeIconPanel" class="theme-toggle" onclick="toggleTheme()">
         <img src="https://ahmad-bhai-admin-panel.vercel.app/MS.png" class="logo-img">
         <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Magic Scripts Admin Panel</h3>
     </div>
@@ -330,7 +330,7 @@
     </button>
 
     <div class="search-container">
-        <img src="https://ahmad-bhai-admin-panel.vercel.app/search.png" id="searchIcon" class="search-main-icon">
+        <img src="search.png" id="searchIcon" class="search-main-icon">
         <input type="text" id="s" placeholder="Search User" onkeyup="search()">
     </div>
     
@@ -455,7 +455,7 @@ Object.keys(users).forEach(key => {
     let countryTitle = matchedCountryPair ? matchedCountryPair[1] : "Global Region";
 
     // 🆕 Custom Logo verification fallback logic
-    let userLogoSrc = (v.logo && v.logo.trim() !== "") ? v.logo : "MS.png";
+    let userLogoSrc = (v.logo && v.logo.trim() !== "") ? v.logo : "https://ahmad-bhai-admin-panel.vercel.app/MS.png";
 
     h += `<div class="user-card" data-admin="${searchKey}">
         <span style="display: flex; align-items: center; gap: 12px; width: 100%;">
@@ -786,7 +786,7 @@ function initializeFlagDropdown() {
         };
         
         item.innerHTML = `
-            <img src="https://flagcdn.com/24x18/${code}" class="flag-icon" style="width:24px; height:18px; object-fit:cover; border-radius:3px;">
+            <img src="https://flagcdn.com/24x18/${code}.png" class="flag-icon" style="width:24px; height:18px; object-fit:cover; border-radius:3px;">
             <span style="font-weight: 600; font-size: 14px;">${name}</span>
         `;
         listContainer.appendChild(item);
