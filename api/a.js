@@ -82,33 +82,45 @@ export default async function handler(req, res) {
         // Token Validity Check
         const isTokenValid = incomingToken && !!tokensStore[incomingToken];
 
-        // 1. LOGIN ROUTE - Creates new unique token with IP and domain metadata
-        if (action === "login") {
-            let providedPassword = (req.method === "POST" && req.body) 
-                ? (typeof req.body === 'string' ? JSON.parse(req.body).password : (req.body.password || req.body.key)) 
-                : key;
+        // 1. LOGIN ROUTE - Dynamically generates unique session tokens
+if (action === "login") {
+    let providedPassword = "";
 
-            if (providedPassword === ADMIN_PASSWORD) {
-                const newToken = "MS_TOK_" + crypto.randomBytes(16).toString('hex');
-                
-                await saveTokenData(newToken, {
-                    ip: clientIp,
-                    domain: ALLOWED_DOMAIN,
-                    created: Date.now()
-                });
+    // Parse Body securely
+    if (req.body) {
+        const parsedBody = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+        providedPassword = parsedBody.password || parsedBody.key || "";
+    }
+    
+    // Fallback to URL Query if Body is empty
+    if (!providedPassword && key) {
+        providedPassword = decodeURIComponent(key);
+    }
 
-                return res.status(200).json({ 
-                    success: true, 
-                    token: newToken,
-                    message: "Login Successful" 
-                });
-            }
-            return res.status(401).json({ 
-                success: false, 
-                error: "Wrong Password", 
-                action: "PERMANENT_BLOCK" 
-            });
-        }
+    // Trim extra spaces
+    if (providedPassword.trim() === ADMIN_PASSWORD) {
+        const newToken = "MS_TOK_" + crypto.randomBytes(16).toString('hex');
+        
+        await saveTokenData(newToken, {
+            ip: clientIp,
+            domain: ALLOWED_DOMAIN,
+            created: Date.now()
+        });
+
+        return res.status(200).json({ 
+            success: true, 
+            token: newToken,
+            message: "Login Successful" 
+        });
+    }
+    
+    return res.status(401).json({ 
+        success: false, 
+        error: "Wrong Password", 
+        action: "PERMANENT_BLOCK" 
+    });
+}
+
 
         // 2. LOGOUT ROUTE - Deletes session token globally
         if (action === "logout") {
