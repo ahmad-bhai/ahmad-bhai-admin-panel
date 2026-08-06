@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADMIN PANEL | MAGIC SCRIPTS</title>
-    <link rel="icon" href="https://magic-scripts.vercel.app/logo.svg" type="image/png" />
+    <link rel="icon" href="https://ahmad-bhai-admin-panel.vercel.app/logo.svg" type="image/png" />
 
     <style>
         :root { 
@@ -251,7 +251,7 @@
 <div id="loginBox" class="box hidden">
     <div class="header-section">
         <img src="https://ahmad-bhai-admin-panel.vercel.app/sun.png" id="themeIconLogin" class="theme-toggle" onclick="toggleTheme()">
-        <img src="https://ahmad-bhai-admin-panel.vercel.app/MS.png" class="logo-img">
+        <img src="https://ahmad-bhai-admin-panel.vercel.app/logo.svg" class="logo-img">
     </div>
     <h2 style="text-align:center; margin:0; margin-bottom: 10px;">Admin Panel Login</h2>
     
@@ -281,7 +281,7 @@
     
     <div class="header-section">
         <img src="sun.png" id="themeIconPanel" class="theme-toggle" onclick="toggleTheme()">
-        <img src="https://ahmad-bhai-admin-panel.vercel.app/MS.png" class="logo-img">
+        <img src="https://ahmad-bhai-admin-panel.vercel.app/logo.svg" class="logo-img">
         <h3 style="margin:10px 0 0; color:var(--blue); text-transform: uppercase;">Magic Scripts Admin Panel</h3>
     </div>
 
@@ -455,7 +455,7 @@ Object.keys(users).forEach(key => {
     let countryTitle = matchedCountryPair ? matchedCountryPair[1] : "Global Region";
 
     // 🆕 Custom Logo verification fallback logic
-    let userLogoSrc = (v.logo && v.logo.trim() !== "") ? v.logo : "https://ahmad-bhai-admin-panel.vercel.app/MS.png";
+    let userLogoSrc = (v.logo && v.logo.trim() !== "") ? v.logo : "https://ahmad-bhai-admin-panel.vercel.app/logo.svg";
 
     h += `<div class="user-card" data-admin="${searchKey}">
         <span style="display: flex; align-items: center; gap: 12px; width: 100%;">
